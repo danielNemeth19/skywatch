@@ -24,3 +24,4 @@ profiling/*.pprof
 
 # Test files
 output/*.html
+output/*.json
