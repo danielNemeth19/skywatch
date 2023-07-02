@@ -16,6 +16,7 @@ func main() {
 	departDate := flag.String("ddate", "", "Specifies depart date")
 	returnDate := flag.String("rdate", "", "Specifies return date")
 	budget := flag.String("budget", "1", "Specifies budget")
+	stopsFilterActive := flag.String("sfa", "false", "Specifies stops filter active")
 	flag.Parse()
 
 	if *useDisk == true {
@@ -27,18 +28,28 @@ func main() {
 		if err := json.Unmarshal(data, &myStruct); err != nil {
 			panic(err)
 		}
-		fmt.Println(myStruct.Destinations[0].Airport)
+		fmt.Println(len(myStruct.Destinations))
+		for k, v := range myStruct.Destinations {
+			if v.FlightInfo.PriceUSD != 0 {
+				fmt.Printf("Item: %d\n", k)
+				fmt.Printf("\tDestination: %s\n", v.City.Name)
+				fmt.Printf("\tAirline: %s\n", v.Airline)
+				fmt.Printf("\tPriceUSD: %d\n", v.FlightInfo.PriceUSD)
+				fmt.Printf("\tPrice: %d\n", v.FlightInfo.Price)
+			}
+		}
 		os.Exit(0)
 	}
 
 	url := urlParts{
-		base:       *base,
-		pathParam:  *pathParam,
-		airport:    *airport,
-		zoomLevel:  *zoomLevel,
-		departDate: *departDate,
-		returnDate: *returnDate,
-		budget:     *budget,
+		base:              *base,
+		pathParam:         *pathParam,
+		airport:           *airport,
+		zoomLevel:         *zoomLevel,
+		departDate:        *departDate,
+		returnDate:        *returnDate,
+		budget:            *budget,
+		stopsFilterActive: *stopsFilterActive,
 	}
 	client := Client{url: url}
 	client.getData()

@@ -6,8 +6,10 @@ type AirData struct {
 }
 
 type Destinations struct {
-	Airline string  `json:"airline,omitempty"`
-	Airport AirPort `json:"airport"`
+	Airline    string     `json:"airline,omitempty"`
+	FlightInfo FlightInfo `json:"flightInfo,omitempty"`
+	Airport    AirPort    `json:"airport,omitempty"`
+	City       City       `json:"city,omitempty"`
 }
 
 type Origin struct {
@@ -24,4 +26,15 @@ type AirPort struct {
 	Name       string  `json:"name,omitempty"`
 	Popularity int     `json:"popularity,omitempty"`
 	ShortName  string  `json:"shortName,omitempty"`
+}
+
+type FlightInfo struct {
+	Price           int `json:"price,omitempty"`
+	PriceUSD        int `json:"priceUSD,omitempty"`
+	HistoricalPrice int `json:"historicalPrice,omitempty"`
+}
+
+type City struct {
+	Id   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
