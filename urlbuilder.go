@@ -31,10 +31,6 @@ func (u urlParts) Compose() string {
 	params.Add("stopsFilterActive", u.stopsFilterActive)
 	params.Add("duration", "")
 
-	params.Add("topRightLat", "68.58212830775821")
-	params.Add("topRightLon", "180")
-	params.Add("bottomLeftLat", "-6.168763628541718")
-	params.Add("bottomLeftLon", "-180")
 	base.RawQuery = params.Encode()
 	fmt.Printf("URL is: %s\n", base.String())
 	return base.String()
