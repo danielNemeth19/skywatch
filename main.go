@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"os"
 )
 
 func main() {
@@ -17,24 +16,28 @@ func main() {
 	stopsFilterActive := flag.String("sfa", "false", "Specifies stops filter active")
 	flag.Parse()
 
+	var parser Parser
 	if *useDisk == true {
-		var testParser Parser
-		testParser = Parser{targetCities: []string{"Madrid", "Barcelona", "Lisbon", "Milano"}}
-		testParser.getData()
-		testParser.summarize()
-		os.Exit(0)
+		parser = Parser{
+			targetCities: []string{"Madrid", "Barcelona", "Lisbon", "Milano"},
+			client:       LocalClient{},
+		}
+	} else {
+		url := urlParts{
+			base:              *base,
+			pathParam:         *pathParam,
+			airport:           *airport,
+			zoomLevel:         *zoomLevel,
+			departDate:        *departDate,
+			returnDate:        *returnDate,
+			budget:            *budget,
+			stopsFilterActive: *stopsFilterActive,
+		}
+		parser = Parser{
+			targetCities: []string{"Madrid", "Barcelona", "Lisbon", "Milano"},
+			client:       WebClient{url: url},
+		}
 	}
-
-	url := urlParts{
-		base:              *base,
-		pathParam:         *pathParam,
-		airport:           *airport,
-		zoomLevel:         *zoomLevel,
-		departDate:        *departDate,
-		returnDate:        *returnDate,
-		budget:            *budget,
-		stopsFilterActive: *stopsFilterActive,
-	}
-	client := Client{url: url}
-	client.getData()
+	data := parser.client.getData()
+	parser.summarize(data)
 }

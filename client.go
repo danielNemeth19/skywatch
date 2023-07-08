@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"go.zoe.im/surferua"
 	"io"
@@ -8,11 +9,29 @@ import (
 	"os"
 )
 
-type Client struct {
+type Client interface {
+	getData() AirData
+}
+
+type LocalClient struct{}
+
+func (l LocalClient) getData() AirData {
+	data, err := os.ReadFile("output/test.json")
+	if err != nil {
+		panic(err)
+	}
+	var airData AirData
+	if err := json.Unmarshal(data, &airData); err != nil {
+		panic(err)
+	}
+	return airData
+}
+
+type WebClient struct {
 	url urlParts
 }
 
-func (c Client) getData() {
+func (c WebClient) getData() AirData {
 	req, err := http.NewRequest(http.MethodGet, c.url.Compose(), nil)
 
 	userAgent := surferua.New().Desktop().Chrome().String()
@@ -34,4 +53,9 @@ func (c Client) getData() {
 		panic("error")
 	}
 	os.WriteFile("output/test.json", []byte(body), 0644)
+	var airData AirData
+	if err := json.Unmarshal(body, &airData); err != nil {
+		panic(err)
+	}
+	return airData
 }

@@ -1,31 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 )
 
 type Parser struct {
-	data         AirData
 	targetCities []string
+	client       Client
 }
 
-func (p *Parser) getData() {
-	data, err := os.ReadFile("output/test.json")
-	if err != nil {
-		panic(err)
-	}
-	var airData AirData
-	if err := json.Unmarshal(data, &airData); err != nil {
-		panic(err)
-	}
-	p.data = airData
-}
-
-func (p *Parser) summarize() {
-	fmt.Println(len(p.data.Destinations))
-	for k, v := range p.data.Destinations {
+func (p Parser) summarize(data AirData) {
+	fmt.Println(len(data.Destinations))
+	for k, v := range data.Destinations {
 		for _, c := range p.targetCities {
 			if v.City.Name == c {
 				fmt.Printf("Item: %d\n", k)
