@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
+	"os"
 )
 
 func main() {
 	useDisk := flag.Bool("test", true, "If true, local json file will be used")
+	skyApi := flag.Bool("skyapi", true, "If true, skyapi will be used")
 	base := flag.String("url", "https://www.kayak.com", "Specifies base url")
 	pathParam := flag.String("path", "s/horizon/exploreapi/elasticbox", "Specifies path parameter")
 	airport := flag.String("airport", "BUD", "Specifies source airport")
@@ -17,11 +19,21 @@ func main() {
 	flag.Parse()
 
 	var parser Parser
+	targetCities := []string{"Madrid", "Barcelona", "Lisbon", "Milano"}
+	parser = Parser{targetCities: targetCities}
+
 	if *useDisk == true {
-		parser = Parser{
-			targetCities: []string{"Madrid", "Barcelona", "Lisbon", "Milano"},
-			client:       LocalClient{},
+		parser.client = LocalClient{}
+	} else if *skyApi == true {
+		skyClient := SkyScannerClient{
+			url: urlParts{
+				base:      "https://skyscanner-api.p.rapidapi.com",
+				pathParam: "v3/flights/live/search/create",
+			},
+			rapidApiKey:  os.Getenv("rapidApiKey"),
+			rapidApiHost: "skyscanner-api.p.rapidapi.com",
 		}
+		parser.client = skyClient
 	} else {
 		url := urlParts{
 			base:              *base,
@@ -33,10 +45,7 @@ func main() {
 			budget:            *budget,
 			stopsFilterActive: *stopsFilterActive,
 		}
-		parser = Parser{
-			targetCities: []string{"Madrid", "Barcelona", "Lisbon", "Milano"},
-			client:       WebClient{url: url},
-		}
+		parser.client = WebClient{url: url}
 	}
 	data := parser.client.getData()
 	parser.summarize(data)

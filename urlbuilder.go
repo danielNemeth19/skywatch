@@ -23,14 +23,24 @@ func (u urlParts) Compose() string {
 	}
 	base.Path += u.pathParam
 	params := url.Values{}
-	params.Add("airport", u.airport)
-	params.Add("zoomLevel", u.zoomLevel)
-	params.Add("depart", u.departDate)
-	params.Add("return", u.returnDate)
-	params.Add("budget", u.budget)
-	params.Add("stopsFilterActive", u.stopsFilterActive)
-	params.Add("duration", "")
-
+	if u.airport != "" {
+		params.Add("airport", u.airport)
+	}
+	if u.zoomLevel != "" {
+		params.Add("zoomLevel", u.zoomLevel)
+	}
+	if u.departDate != "" {
+		params.Add("depart", u.departDate)
+	}
+	if u.returnDate != "" {
+		params.Add("return", u.returnDate)
+	}
+	if u.budget != "" {
+		params.Add("budget", u.budget)
+	}
+	if u.stopsFilterActive != "" {
+		params.Add("stopsFilterActive", u.stopsFilterActive)
+	}
 	base.RawQuery = params.Encode()
 	fmt.Printf("URL is: %s\n", base.String())
 	return base.String()
