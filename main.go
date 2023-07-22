@@ -10,7 +10,8 @@ func main() {
 	skyApi := flag.Bool("skyapi", true, "If true, skyapi will be used")
 	base := flag.String("url", "https://www.kayak.com", "Specifies base url")
 	pathParam := flag.String("path", "s/horizon/exploreapi/elasticbox", "Specifies path parameter")
-	airport := flag.String("airport", "BUD", "Specifies source airport")
+	origin := flag.String("origin", "BUD", "Specifies source airport")
+	destination := flag.String("destination", "", "Specifies destination airport")
 	zoomLevel := flag.String("zl", "2", "Specifies zoom level")
 	departDate := flag.String("ddate", "", "Specifies depart date")
 	returnDate := flag.String("rdate", "", "Specifies return date")
@@ -32,13 +33,14 @@ func main() {
 			},
 			rapidApiKey:  os.Getenv("rapidApiKey"),
 			rapidApiHost: "skyscanner-api.p.rapidapi.com",
+			payload:      Assemble(*origin, *destination),
 		}
 		parser.client = skyClient
 	} else {
 		url := urlParts{
 			base:              *base,
 			pathParam:         *pathParam,
-			airport:           *airport,
+			airport:           *origin,
 			zoomLevel:         *zoomLevel,
 			departDate:        *departDate,
 			returnDate:        *returnDate,

@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
 type Client interface {
@@ -67,29 +66,17 @@ type SkyScannerClient struct {
 	url          urlParts
 	rapidApiKey  string
 	rapidApiHost string
+	payload      Payload
 }
 
 func (s SkyScannerClient) getData() AirData {
-	payload := strings.NewReader(
-		`{
-		"query":
-			{
-				"market": "UK",
-				"locale": "en-GB",
-				"currency": "EUR",
-				"queryLegs":
-					[
-						{
-							"originPlaceId": {"iata": "BUD"},
-							"destinationPlaceId": {"iata": "LIS"},
-							"date": {"year": 2023, "month": 11, "day": 1}
-						}
-					],
-				"cabinClass": "CABIN_CLASS_ECONOMY",
-				"adults": 1
-			}
-	}`)
-	req, err := http.NewRequest(http.MethodPost, s.url.Compose(), payload)
+	payload, err := json.Marshal(s.payload)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(payload))
+
+	req, err := http.NewRequest(http.MethodPost, s.url.Compose(), bytes.NewReader(payload))
 	if err != nil {
 		log.Fatal(err)
 	}
