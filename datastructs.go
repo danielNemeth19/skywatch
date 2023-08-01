@@ -70,6 +70,10 @@ type DateInfo struct {
 	Day   int `json:"day,omitempty"`
 }
 
+type SessionToken struct {
+	Token string `json:"sessionToken,omitempty"`
+}
+
 func Assemble(origin, destination string) Payload {
 	var payload Payload
 	payload.Query = PayloadData{

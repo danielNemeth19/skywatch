@@ -103,5 +103,40 @@ func (s SkyScannerClient) getData() AirData {
 	if err != nil {
 		panic(err)
 	}
+
+	var token SessionToken
+	if err := json.Unmarshal(body, &token); err != nil {
+		panic(err)
+	}
+
+	url := urlParts{
+		base:      "https://skyscanner-api.p.rapidapi.com",
+		pathParam: "v3/flights/live/search/poll/" + token.Token,
+	}
+	req, err = http.NewRequest(http.MethodPost, url.Compose(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Add("X-RapidAPI-Key", s.rapidApiKey)
+	req.Header.Add("X-RapidAPI-Host", s.rapidApiHost)
+	res, err = http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+	body, err = io.ReadAll(res.Body)
+	if err != err {
+		log.Fatal(err)
+	}
+
+	var finalJson bytes.Buffer
+	err = json.Indent(&finalJson, body, "", "\t")
+	if err != nil {
+		panic(err)
+	}
+	err = os.WriteFile("output/skyscanner_final.json", finalJson.Bytes(), 0644)
+	if err != nil {
+		panic(err)
+	}
 	return AirData{}
 }

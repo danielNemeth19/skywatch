@@ -14,6 +14,7 @@ type urlParts struct {
 	returnDate        string
 	budget            string
 	stopsFilterActive string
+	token             string
 }
 
 func (u urlParts) Compose() string {
