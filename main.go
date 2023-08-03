@@ -6,17 +6,11 @@ import (
 )
 
 func main() {
-	useDisk := flag.Bool("test", true, "If true, local json file will be used")
-	skyApi := flag.Bool("skyapi", true, "If true, skyapi will be used")
-	base := flag.String("url", "https://www.kayak.com", "Specifies base url")
-	pathParam := flag.String("path", "s/horizon/exploreapi/elasticbox", "Specifies path parameter")
+	useDisk := flag.Bool("test", false, "If true, local json file will be used")
+	base := flag.String("url", "https://skyscanner-api.p.rapidapi.com", "Specifies base url")
+	pathParam := flag.String("path", "v3/flights/live/search/create", "Specifies path parameter")
 	origin := flag.String("origin", "BUD", "Specifies source airport")
 	destination := flag.String("destination", "", "Specifies destination airport")
-	zoomLevel := flag.String("zl", "2", "Specifies zoom level")
-	departDate := flag.String("ddate", "", "Specifies depart date")
-	returnDate := flag.String("rdate", "", "Specifies return date")
-	budget := flag.String("budget", "", "Specifies budget")
-	stopsFilterActive := flag.String("sfa", "false", "Specifies stops filter active")
 	flag.Parse()
 
 	var parser Parser
@@ -25,29 +19,21 @@ func main() {
 
 	if *useDisk == true {
 		parser.client = LocalClient{}
-	} else if *skyApi == true {
+	} else {
 		skyClient := SkyScannerClient{
-			url: urlParts{
-				base:      "https://skyscanner-api.p.rapidapi.com",
-				pathParam: "v3/flights/live/search/create",
-			},
 			rapidApiKey:  os.Getenv("rapidApiKey"),
 			rapidApiHost: "skyscanner-api.p.rapidapi.com",
-			payload:      Assemble(*origin, *destination),
+			urlParts: urlParts{
+				base:      *base,
+				pathParam: *pathParam,
+			},
+			PayloadBuilder: PayloadBuilder{
+				origin:      *origin,
+				destination: *destination,
+				dateString:  "20231201",
+			},
 		}
 		parser.client = skyClient
-	} else {
-		url := urlParts{
-			base:              *base,
-			pathParam:         *pathParam,
-			airport:           *origin,
-			zoomLevel:         *zoomLevel,
-			departDate:        *departDate,
-			returnDate:        *returnDate,
-			budget:            *budget,
-			stopsFilterActive: *stopsFilterActive,
-		}
-		parser.client = WebClient{url: url}
 	}
 	data := parser.client.getData()
 	parser.summarize(data)

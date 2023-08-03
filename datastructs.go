@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 type AirData struct {
 	Destinations []Destinations
 	Origin       Origin
@@ -65,30 +67,11 @@ type IataInfo struct {
 }
 
 type DateInfo struct {
-	Year  int `json:"year,omitempty"`
-	Month int `json:"month,omitempty"`
-	Day   int `json:"day,omitempty"`
+	Year  int        `json:"year,omitempty"`
+	Month time.Month `json:"month,omitempty"`
+	Day   int        `json:"day,omitempty"`
 }
 
 type SessionToken struct {
 	Token string `json:"sessionToken,omitempty"`
-}
-
-func Assemble(origin, destination string) Payload {
-	var payload Payload
-	payload.Query = PayloadData{
-		Market:   "UK",
-		Locale:   "en-GB",
-		Currency: "EUR",
-		QueryLegs: []QueryLegs{
-			{
-				OriginPlaceId:      IataInfo{Iata: origin},
-				DestinationPlaceId: IataInfo{Iata: destination},
-				Date:               DateInfo{Year: 2023, Month: 10, Day: 10},
-			},
-		},
-		CabinClass: "CABIN_CLASS_ECONOMY",
-		Adults:     1,
-	}
-	return payload
 }
