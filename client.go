@@ -10,6 +10,13 @@ import (
 	"os"
 )
 
+const (
+	ResultUnspecified = "RESULT_STATUS_UNSPECIFIED"
+	ResultIncomplete  = "RESULT_STATUS_INCOMPLETE"
+	ResultComplete    = "RESULT_STATUS_COMPLETE"
+	ResultFailed      = "RESULT_STATUS_FAILED"
+)
+
 type Client interface {
 	getData() AirData
 }
@@ -29,10 +36,49 @@ func (l LocalClient) getData() AirData {
 }
 
 type SkyScannerClient struct {
-	rapidApiKey  string
-	rapidApiHost string
+	apiKey string
 	urlParts
 	PayloadBuilder
+}
+
+func (s SkyScannerClient) sendRequest(method string, url string, payload []byte) []byte {
+	req, err := http.NewRequest(method, url, bytes.NewReader(payload))
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("x-api-key", s.apiKey)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != err {
+		log.Fatal(err)
+	}
+	return body
+}
+
+// Think about handling error results
+// Think about the urlParts struct - should it really be embedded in client?
+func (s SkyScannerClient) callUntilDone(body []byte) []byte {
+	fmt.Println("CALLING INTO RECURSIVE FUNCTION")
+	var sessionInfo SessionInfo
+	if err := json.Unmarshal(body, &sessionInfo); err != nil {
+		log.Fatal(err)
+	}
+	if sessionInfo.Status == ResultIncomplete {
+		fmt.Printf("Status is incomplete: %s\n", sessionInfo.Status)
+		url := urlParts{
+			base:      s.urlParts.base,
+			pathParam: "apiservices/v3/flights/live/search/poll/" + sessionInfo.Token,
+		}
+		newBody := s.sendRequest(http.MethodPost, url.Compose(), nil)
+		return s.callUntilDone(newBody)
+	}
+	fmt.Printf("Status is NOT incomplete: %s\n", sessionInfo.Status)
+	return body
 }
 
 func (s SkyScannerClient) getData() AirData {
@@ -40,63 +86,13 @@ func (s SkyScannerClient) getData() AirData {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(payload))
+	fmt.Printf("payload is: %s\n", payload)
 
-	req, err := http.NewRequest(http.MethodPost, s.urlParts.Compose(), bytes.NewReader(payload))
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("X-RapidAPI-Key", s.rapidApiKey)
-	req.Header.Add("X-RapidAPI-Host", s.rapidApiHost)
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	var myJson bytes.Buffer
-	err = json.Indent(&myJson, body, "", "\t")
-	if err != nil {
-		panic(err)
-	}
-	err = os.WriteFile("output/skyscanner.json", myJson.Bytes(), 0644)
-	if err != nil {
-		panic(err)
-	}
-
-	var token SessionToken
-	if err := json.Unmarshal(body, &token); err != nil {
-		panic(err)
-	}
-
-	url := urlParts{
-		base:      "https://skyscanner-api.p.rapidapi.com",
-		pathParam: "v3/flights/live/search/poll/" + token.Token,
-	}
-	req, err = http.NewRequest(http.MethodPost, url.Compose(), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Add("X-RapidAPI-Key", s.rapidApiKey)
-	req.Header.Add("X-RapidAPI-Host", s.rapidApiHost)
-	res, err = http.DefaultClient.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer res.Body.Close()
-	body, err = io.ReadAll(res.Body)
-	if err != err {
-		log.Fatal(err)
-	}
+	body := s.sendRequest(http.MethodPost, s.urlParts.Compose(), payload)
+	fb := s.callUntilDone(body)
 
 	var finalJson bytes.Buffer
-	err = json.Indent(&finalJson, body, "", "\t")
+	err = json.Indent(&finalJson, fb, "", "\t")
 	if err != nil {
 		panic(err)
 	}
