@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/url"
 )
 
@@ -22,6 +21,5 @@ func (u urlParts) Compose() string {
 		params.Add("airport", u.airport)
 	}
 	base.RawQuery = params.Encode()
-	fmt.Printf("URL is: %s\n", base.String())
 	return base.String()
 }

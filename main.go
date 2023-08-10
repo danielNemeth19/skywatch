@@ -7,11 +7,11 @@ import (
 )
 
 func getApiKey() string {
-	rapidApiKey := os.Getenv("apikey")
-	if rapidApiKey == "" {
+	apiKey := os.Getenv("apikey")
+	if apiKey == "" {
 		log.Fatalf("Api key not found!")
 	}
-	return rapidApiKey
+	return apiKey
 }
 
 func main() {

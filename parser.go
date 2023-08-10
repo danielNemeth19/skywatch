@@ -10,6 +10,5 @@ type Parser struct {
 }
 
 func (p Parser) summarize(data AirData) {
-	fmt.Printf("Summary for origin airport: %s\n", data.Origin)
-	fmt.Println(len(data.Destinations))
+	fmt.Printf("parsed: %v\n", data)
 }

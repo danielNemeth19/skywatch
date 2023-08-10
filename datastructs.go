@@ -3,13 +3,21 @@ package main
 import "time"
 
 type AirData struct {
-	Destinations []Destinations
-	Origin       Origin
+	Content map[string]interface{} `json:"content,omitempty"`
 }
 
-type Destinations struct{}
-
-type Origin struct{}
+//type Content struct {
+//	SortingOptions SortingOptions `json:"sortingOptions,omitempty"`
+//}
+//
+//type SortingOptions struct {
+//	Best []Best `json:"best,omitempty"`
+//}
+//
+//type Best struct {
+//	Score       float32 `json:"score,omitempty"`
+//	ItineraryId string  `json:"itineraryId,omitempty"`
+//}
 
 type Payload struct {
 	Query PayloadData `json:"query,omitempty"`
