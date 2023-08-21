@@ -27,8 +27,7 @@ func main() {
 	flag.Parse()
 
 	var parser Parser
-	targetCities := []string{"Madrid", "Barcelona", "Lisbon", "Milano"}
-	parser = Parser{targetCities: targetCities}
+	parser = Parser{}
 
 	if *useDisk == true {
 		parser.client = LocalClient{}
