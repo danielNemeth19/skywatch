@@ -13,9 +13,8 @@ type Content struct {
 
 type Results struct {
 	Itineraries map[string]Itinerary `json:"itineraries,omitempty"`
-	Agents map[string]Agent `json:"agents"`
+	Agents      map[string]Agent     `json:"agents"`
 }
-
 
 type Agent struct {
 	Name                 string      `json:"name,omitempty"`
@@ -36,36 +35,38 @@ type Best struct {
 	ItineraryId string  `json:"itineraryId,omitempty"`
 }
 
-
 type Itinerary struct {
-	PricingOptions []PricingOption `json:"pricingOptions,omitempty"`
-	LegIds         []string `json:"legIds,omitempty"`
-	SustainabilityData string `json:"sustainabilitydata,omitempty"`
+	PricingOptions     []PricingOption `json:"pricingOptions,omitempty"`
+	LegIds             []string        `json:"legIds,omitempty"`
+	SustainabilityData string          `json:"sustainabilitydata,omitempty"`
 }
 
-
 type PricingOption struct {
-	Price    Price `json:"price,omitempty"`
-	Items    []Item `json:"items,omitempty"`
-	AgentIds []string `json:"agentIds,omitempty"`
-	TransferType string `json:"transferType,omitempty"`
-	Id string `json:"id,omitempty"`
-	PricingOptionFare string `json:"pricingOptionFare,omitempty"`
+	Price             Price    `json:"price,omitempty"`
+	AgentIds          []string `json:"agentIds,omitempty"`
+	Items             []Item   `json:"items,omitempty"`
+	TransferType      string   `json:"transferType,omitempty"`
+	Id                string   `json:"id,omitempty"`
+	PricingOptionFare string   `json:"pricingOptionFare,omitempty"`
 }
 
 type Price struct {
 	Amount       string `json:"amount,omitempty"`
-	Unit         string  `json:"unit,omitempty"`
-	UpdateStatus string  `json:"updateStatus,omitempty"`
+	Unit         string `json:"unit,omitempty"`
+	UpdateStatus string `json:"updateStatus,omitempty"`
 }
 
 type Item struct {
-	Price Price `json:"price,omitempty"`
-	AgentId string `json:"agentId,omitempty"`
+	Price    Price  `json:"price,omitempty"`
+	AgentId  string `json:"agentId,omitempty"`
+	DeepLink string `json:"deepLink,omitempty"`
+	Fares    []Fare `json:"fares,omitempty"`
 }
 
-type AgentIds struct {
-	AgentIds []string `json:"agentIds,omitempty"`
+type Fare struct {
+	SegmentId     string `json:"segmentId,omitempty"`
+	BookingCode   string `json:"bookingCode,omitempty"`
+	FareBasisCode string `json:"fareBasisCode,omitempty"`
 }
 
 type Payload struct {
