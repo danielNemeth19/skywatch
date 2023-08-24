@@ -50,5 +50,5 @@ func main() {
 		parser.client = skyClient
 	}
 	data := parser.client.getData()
-	parser.summarize(data)
+	parser.summarizeAgents(data)
 }

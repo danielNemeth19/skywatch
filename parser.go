@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 )
 
 type Parser struct {
@@ -23,6 +24,19 @@ func (p Parser) summarize(data AirData) {
 		fmt.Printf("\tTransfer type: %s\n", option.TransferType)
 		fmt.Printf("\tId: %s\n", option.Id)
 		fmt.Printf("\tPricing option fare: %s\n", option.PricingOptionFare)
+	}
+}
+
+func (p Parser) summarizeAgents(data AirData) {
+	for agent, data := range data.Content.Results.Agents {
+		fmt.Printf("agent: %s\n", agent)
+		if data.RatingBreakDown != nil {
+			d := reflect.ValueOf(data.RatingBreakDown)
+			for _, key :=range d.MapKeys() {
+				value := d.MapIndex(key)
+				fmt.Printf("\tkey: %v -- value: %v -- %v\n", key, value, value.Kind())
+			}
+		}
 	}
 }
 
