@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"reflect"
+	"sort"
 )
 
 type Parser struct {
@@ -27,18 +27,18 @@ func (p Parser) summarize(data AirData) {
 	}
 }
 
+
 func (p Parser) summarizeAgents(data AirData) {
-	for agent, data := range data.Content.Results.Agents {
-		fmt.Printf("agent: %s\n", agent)
-		if data.RatingBreakDown != nil {
-			d := reflect.ValueOf(data.RatingBreakDown)
-			for _, key :=range d.MapKeys() {
-				value := d.MapIndex(key)
-				fmt.Printf("\tkey: %v -- value: %v -- %v\n", key, value, value.Kind())
-			}
-		}
+	var ratings []AgentRating
+	fmt.Printf("agent: -- name -- rating\n")
+	for _, data := range data.Content.Results.Agents {
+		ratings = append(ratings, AgentRating{Name: data.Name, Rating: data.Rating})
 	}
-}
+	sort.Slice(ratings, func(i, j int) bool { return ratings[i].Rating > ratings[j].Rating })
+	for _, agentRating := range(ratings) {
+		fmt.Printf("Agent: %s -- rating %f\n", agentRating.Name, agentRating.Rating)
+	}
+ }
 
 func (p Parser) findBestItinerary(data AirData) {
 	best := data.Content.SortingOptions.Best[0]

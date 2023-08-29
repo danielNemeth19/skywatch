@@ -53,6 +53,10 @@ func (s SkyScannerClient) sendRequest(method string, url string, payload []byte)
 		log.Fatal(err)
 	}
 	defer res.Body.Close()
+	log.Printf("Response status code is %d\n", res.StatusCode)
+	if res.StatusCode == http.StatusTooManyRequests {
+		log.Fatal("Too many requests")
+	}
 	body, err := io.ReadAll(res.Body)
 	if err != err {
 		log.Fatal(err)
@@ -64,6 +68,9 @@ func (s SkyScannerClient) PollUntilCompletes(body []byte) []byte {
 	var sessionInfo SessionInfo
 	if err := json.Unmarshal(body, &sessionInfo); err != nil {
 		log.Fatal(err)
+	}
+	if sessionInfo.Status == "" {
+		fmt.Printf("Body is: %s\n", body)
 	}
 	if sessionInfo.Status == ResultUnspecified || sessionInfo.Status == ResultFailed {
 		log.Fatalf("Aborting as status is %s", sessionInfo.Status)
@@ -103,5 +110,10 @@ func (s SkyScannerClient) getData() AirData {
 	body := s.sendRequest(http.MethodPost, s.urlParts.Compose(), payload)
 	fb := s.PollUntilCompletes(body)
 	s.StoreResult(fb)
-	return AirData{}
+
+	var airData AirData
+	if err := json.Unmarshal(fb, &airData); err != nil {
+		panic(err)
+	}
+	return airData
 }

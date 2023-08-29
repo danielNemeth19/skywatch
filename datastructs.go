@@ -17,13 +17,26 @@ type Results struct {
 }
 
 type Agent struct {
-	Name                 string      `json:"name,omitempty"`
-	Type                 string      `json:"type,omitempty"`
-	ImageUrl             string      `json:"ImageUrl,omitempty"`
-	FeedbackCount        int         `json:"feedbackCount,omitempty"`
-	Rating               float32     `json:"rating,omitempty"`
-	RatingBreakDown      interface{} `json:"ratingBreakDown,omitempty"`
-	IsOptimizedForMobile bool        `json:"isOptimizedForMobile,omitempty"`
+	Name                 string          `json:"name,omitempty"`
+	Type                 string          `json:"type,omitempty"`
+	ImageUrl             string          `json:"ImageUrl,omitempty"`
+	FeedbackCount        int             `json:"feedbackCount,omitempty"`
+	Rating               float32         `json:"rating,omitempty"`
+	RatingBreakDown      RatingBreakDown `json:"ratingBreakDown,omitempty"`
+	IsOptimizedForMobile bool            `json:"isOptimizedForMobile,omitempty"`
+}
+
+type AgentRating struct {
+	Name string
+	Rating float32
+}
+
+type RatingBreakDown struct {
+	CustomerService int `json:"customerService,omitempty"`
+	ReliablePrices  int `json:"reliablePrices,omitempty"`
+	ClearExtraFees  int `json:"clearExtraFees,omitempty"`
+	EaseOfBooking   int `json:"easeOfBooking,omitempty"`
+	Other           int `json:"other,omitempty"`
 }
 
 type SortingOptions struct {
