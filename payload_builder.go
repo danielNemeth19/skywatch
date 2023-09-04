@@ -10,15 +10,23 @@ type PayloadBuilder struct {
 	currency    string
 	origin      string
 	destination string
-	dateString  string
+	sDate       string
+	budgetAgent bool
 }
 
 func (builder PayloadBuilder) parseDateString() time.Time {
-	date, err := time.Parse("20060102", builder.dateString)
+	date, err := time.Parse("20060102", builder.sDate)
 	if err != nil {
 		panic(err)
 	}
 	return date
+}
+
+func (builder PayloadBuilder) setIncludedAgentIds() []string {
+	if builder.budgetAgent == true {
+		return []string{"wizz", "ryan", "easy", "eapr"}
+	}
+	return []string{}
 }
 
 func (builder PayloadBuilder) Assemble() Payload {
@@ -37,8 +45,9 @@ func (builder PayloadBuilder) Assemble() Payload {
 				},
 			},
 		},
-		CabinClass: "CABIN_CLASS_ECONOMY",
-		Adults:     1,
+		CabinClass:        "CABIN_CLASS_ECONOMY",
+		Adults:            1,
+		IncludedAgentsIds: builder.setIncludedAgentIds(),
 	}
 	return payload
 }

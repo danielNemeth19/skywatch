@@ -20,12 +20,15 @@ type Client interface {
 	getData() AirData
 }
 
-type LocalClient struct{}
+type LocalClient struct {
+	fileName string
+}
 
 func (l LocalClient) getData() AirData {
-	data, err := os.ReadFile("output/skyscanner_final.json")
+	fileToRead := "output/" + l.fileName
+	data, err := os.ReadFile(fileToRead)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Check input filename:%v\n", err)
 	}
 	var airData AirData
 	if err := json.Unmarshal(data, &airData); err != nil {
@@ -35,8 +38,9 @@ func (l LocalClient) getData() AirData {
 }
 
 type SkyScannerClient struct {
-	apiKey  string
-	retries int
+	apiKey   string
+	fileName string
+	retries  int
 	urlParts
 	PayloadBuilder
 }
@@ -94,7 +98,8 @@ func (s SkyScannerClient) StoreResult(body []byte) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = os.WriteFile("output/skyscanner_final.json", jsonResult.Bytes(), 0644)
+	fileToWrite := "output/" + s.fileName
+	err = os.WriteFile(fileToWrite, jsonResult.Bytes(), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -27,7 +27,8 @@ type Agent struct {
 }
 
 type AgentRating struct {
-	Name string
+	Id     string
+	Name   string
 	Rating float32
 }
 
@@ -87,12 +88,13 @@ type Payload struct {
 }
 
 type PayloadData struct {
-	Market     string      `json:"market,omitempty"`
-	Locale     string      `json:"locale,omitempty"`
-	Currency   string      `json:"currency,omitempty"`
-	QueryLegs  []QueryLegs `json:"queryLegs,omitempty"`
-	CabinClass string      `json:"cabinClass,omitempty"`
-	Adults     int         `json:"adults,omitempty"`
+	Market            string      `json:"market,omitempty"`
+	Locale            string      `json:"locale,omitempty"`
+	Currency          string      `json:"currency,omitempty"`
+	QueryLegs         []QueryLegs `json:"queryLegs,omitempty"`
+	CabinClass        string      `json:"cabinClass,omitempty"`
+	Adults            int         `json:"adults,omitempty"`
+	IncludedAgentsIds []string    `json:"includedAgentsIds,omitempty"`
 }
 
 type QueryLegs struct {

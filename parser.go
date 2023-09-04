@@ -27,18 +27,17 @@ func (p Parser) summarize(data AirData) {
 	}
 }
 
-
 func (p Parser) summarizeAgents(data AirData) {
 	var ratings []AgentRating
 	fmt.Printf("agent: -- name -- rating\n")
-	for _, data := range data.Content.Results.Agents {
-		ratings = append(ratings, AgentRating{Name: data.Name, Rating: data.Rating})
+	for key, data := range data.Content.Results.Agents {
+		ratings = append(ratings, AgentRating{Id: key, Name: data.Name, Rating: data.Rating})
 	}
 	sort.Slice(ratings, func(i, j int) bool { return ratings[i].Rating > ratings[j].Rating })
-	for _, agentRating := range(ratings) {
-		fmt.Printf("Agent: %s -- rating %f\n", agentRating.Name, agentRating.Rating)
+	for _, agentRating := range ratings {
+		fmt.Printf("Agent: %s -- rating %f -- Id: %s\n", agentRating.Name, agentRating.Rating, agentRating.Id)
 	}
- }
+}
 
 func (p Parser) findBestItinerary(data AirData) {
 	best := data.Content.SortingOptions.Best[0]
