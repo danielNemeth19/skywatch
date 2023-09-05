@@ -2,6 +2,13 @@ package main
 
 import "time"
 
+var priceUnitEnum = map[string]float64{
+	"PRICE_UNIT_WHOLE": 1,
+	"PRICE_UNIT_CENTI": 100,
+	"PRICE_UNIT_MILLI": 1000,
+	"PRICE_UNIT_MICRO": 1000000,
+}
+
 type AirData struct {
 	Content Content `json:"content,omitempty"`
 }
@@ -116,4 +123,11 @@ type DateInfo struct {
 type SessionInfo struct {
 	Status string `json:"status,omitempty"`
 	Token  string `json:"sessionToken,omitempty"`
+}
+
+type OptionData struct {
+	numAgents int
+	numItems  int
+	numFares  int
+	isDirect  bool
 }
