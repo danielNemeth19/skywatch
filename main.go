@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 )
@@ -56,7 +57,8 @@ func main() {
 		parser.client = skyClient
 	}
 	data := parser.client.getData()
-	parser.isDirect(data)
-	//parser.summarize(data)
-	//parser.summarizeAgents(data)
+	options := parser.getOptionData(data)
+	for _, option := range options {
+		fmt.Printf("Score: %f -- price: %.2f -- direct: %v\n", option.bestScore, option.price, option.isDirect)
+	}
 }

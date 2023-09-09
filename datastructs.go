@@ -52,7 +52,7 @@ type SortingOptions struct {
 }
 
 type Best struct {
-	Score       float32 `json:"score,omitempty"`
+	Score       float64 `json:"score,omitempty"`
 	ItineraryId string  `json:"itineraryId,omitempty"`
 }
 
@@ -126,8 +126,12 @@ type SessionInfo struct {
 }
 
 type OptionData struct {
+	itineraryId string
+	optionIndex int
+	price float64
 	numAgents int
 	numItems  int
 	numFares  int
 	isDirect  bool
+	bestScore float64
 }

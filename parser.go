@@ -23,48 +23,37 @@ func (p Parser) summarize(data AirData) {
 	}
 }
 
-func (p Parser) checkTransfer(data AirData) {
-	for key, value := range data.Content.Results.Itineraries {
-		pOptions := len(value.PricingOptions)
-		fmt.Printf("%s -- Number of pricing options: %d\n", key, pOptions)
-		for i, option := range value.PricingOptions {
-			fmt.Printf("%d -- Number of items: %d -- Number of fares in items: %d\n", i, len(option.Items), len(option.Items[0].Fares))
-			fmt.Printf("Price: %f\n", p.convertPrice(option.Price))
+func (p Parser) getOptionData(data AirData) []OptionData {
+	var options []OptionData
+	for id, itinerary := range data.Content.Results.Itineraries {
+		for i, option := range itinerary.PricingOptions {
+			var fares int
+			for _, item := range option.Items {
+				fares += len(item.Fares)
+			}
+			score := p.findBestScore(id, data.Content.SortingOptions.Best)
+			od := OptionData{
+				itineraryId: id,
+				optionIndex: i,
+				bestScore: score,
+				price:       p.convertPrice(option.Price),
+				numAgents:   len(option.AgentIds),
+				numItems:    len(option.Items),
+				numFares:    fares,
+			}
+			od.isDirect = od.isDirectFlight()
+			options = append(options, od)
 		}
 	}
+	sort.Slice(options, func(i, j int)bool {return options[i].bestScore > options[j].bestScore})
+	return options
 }
 
-func (p Parser) isDirect(data AirData) {
-	numItineraries := len(data.Content.Results.Itineraries)
-	counter := 0
-	fmt.Printf("Number of Itineraries: %d\n", numItineraries)
-	for key, value := range data.Content.Results.Itineraries {
-		counter += 1
-		for i, option := range value.PricingOptions {
-			if len(option.AgentIds) == 1 && len(option.Items) == 1 && len(option.Items[0].Fares) == 1 {
-				fmt.Printf("%d itinerary %s -- option %d - must be direct\n", counter, key, i)
-				p.analyzePricingOption(option)
-			}
-			if len(option.AgentIds) != 1 || len(option.Items) != 1 {
-				fmt.Printf("%d itinerary %s -- option %d - NOT direct -- agents: %d -- items: %d\n",counter, key, i, len(option.AgentIds), len(option.Items))
-				p.analyzePricingOption(option)
-			}
-			if len(option.AgentIds) == 1 && len(option.Items) == 1 && len(option.Items[0].Fares) != 1 {
-				fmt.Printf("%d itinerary %s -- option %d - NOT direct -- agents: %d -- items: %d\n", counter, key, i, len(option.AgentIds), len(option.Items))
-				p.analyzePricingOption(option)
-			}
-		}
+func (od OptionData) isDirectFlight() bool {
+	if od.numAgents == 1 && od.numItems == 1 && od.numFares == 1 {
+		return true
 	}
-}
-
-func (p Parser) analyzePricingOption(po PricingOption) {
-	var agents, items, fares int
-	agents = len(po.AgentIds)
-	items = len(po.Items)
-	for _, data := range po.Items {
-		fares += len(data.Fares)
-	}
-	fmt.Printf("Agents: %d, Items: %d, Total fares: %d\n", agents, items, fares)
+	return false
 }
 
 func (p Parser) convertPrice(priceData Price) float64 {
@@ -89,15 +78,12 @@ func (p Parser) summarizeAgents(data AirData) {
 	}
 }
 
-func (p Parser) findBestItinerary(data AirData) {
-	best := data.Content.SortingOptions.Best[0]
-	counter := 0
-	bestId := best.ItineraryId
-	for key := range data.Content.Results.Itineraries {
-		if key == bestId {
-			fmt.Printf("Found at: %d\n", counter)
-		} else {
-			counter += 1
+func (p Parser) findBestScore(itinerary string, data []Best) float64{
+	var score float64
+	for _, v := range data {
+		if v.ItineraryId == itinerary {
+			score = v.Score
 		}
 	}
+	return score
 }
