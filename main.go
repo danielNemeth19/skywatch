@@ -61,4 +61,5 @@ func main() {
 	for _, option := range options {
 		fmt.Printf("Score: %f -- price: %.2f -- direct: %v\n", option.bestScore, option.price, option.isDirect)
 	}
+	parser.checkLegIds(data)
 }

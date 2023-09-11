@@ -23,19 +23,36 @@ func (p Parser) summarize(data AirData) {
 	}
 }
 
+func (p Parser) checkLegIds(data AirData) {
+	var pass, fail int
+	for id, data := range data.Content.Results.Itineraries {
+		if id == data.LegIds[0] {
+			pass += 1
+		} else {
+			fail += 1
+		}
+	}
+	fmt.Printf("Passed: %d -- Failed: %d\n", pass, fail)
+}
+
 func (p Parser) getOptionData(data AirData) []OptionData {
 	var options []OptionData
 	for id, itinerary := range data.Content.Results.Itineraries {
 		for i, option := range itinerary.PricingOptions {
 			var fares int
+			var segIds []string
 			for _, item := range option.Items {
 				fares += len(item.Fares)
+				for _, fare := range item.Fares {
+					segIds = append(segIds, fare.SegmentId)
+				}
 			}
 			score := p.findBestScore(id, data.Content.SortingOptions.Best)
 			od := OptionData{
 				itineraryId: id,
 				optionIndex: i,
-				bestScore: score,
+				bestScore:   score,
+				segmentIds:  segIds,
 				price:       p.convertPrice(option.Price),
 				numAgents:   len(option.AgentIds),
 				numItems:    len(option.Items),
@@ -45,7 +62,7 @@ func (p Parser) getOptionData(data AirData) []OptionData {
 			options = append(options, od)
 		}
 	}
-	sort.Slice(options, func(i, j int)bool {return options[i].bestScore > options[j].bestScore})
+	sort.Slice(options, func(i, j int) bool { return options[i].bestScore > options[j].bestScore })
 	return options
 }
 
@@ -78,7 +95,7 @@ func (p Parser) summarizeAgents(data AirData) {
 	}
 }
 
-func (p Parser) findBestScore(itinerary string, data []Best) float64{
+func (p Parser) findBestScore(itinerary string, data []Best) float64 {
 	var score float64
 	for _, v := range data {
 		if v.ItineraryId == itinerary {

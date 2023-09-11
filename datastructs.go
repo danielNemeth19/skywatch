@@ -128,10 +128,11 @@ type SessionInfo struct {
 type OptionData struct {
 	itineraryId string
 	optionIndex int
-	price float64
-	numAgents int
-	numItems  int
-	numFares  int
-	isDirect  bool
-	bestScore float64
+	price       float64
+	segmentIds  []string
+	numAgents   int
+	numItems    int
+	numFares    int
+	isDirect    bool
+	bestScore   float64
 }
