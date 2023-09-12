@@ -21,6 +21,7 @@ type Content struct {
 type Results struct {
 	Itineraries map[string]Itinerary `json:"itineraries,omitempty"`
 	Agents      map[string]Agent     `json:"agents"`
+	Legs        map[string]Leg       `json:"legs,omitempty"`
 }
 
 type Agent struct {
@@ -31,6 +32,25 @@ type Agent struct {
 	Rating               float32         `json:"rating,omitempty"`
 	RatingBreakDown      RatingBreakDown `json:"ratingBreakDown,omitempty"`
 	IsOptimizedForMobile bool            `json:"isOptimizedForMobile,omitempty"`
+}
+
+type Leg struct {
+	OriginId          string   `json:"originPlaceId,omitempty"`
+	DestinationId     string   `json:"destinationPlaceId,omitempty"`
+	DepartureDateTime DateTime `json:"departureDateTime,omitempty"`
+	ArrivalDateTime   DateTime `json:"arrivalDateTime,omitempty"`
+	DurationInMinutes int      `json:"durationInMinutes,omitempty"`
+	StopCount         int      `json:"stopCount,omitempty"`
+	SegmentIds        []string `json:"segmentIds,omitempty"`
+}
+
+type DateTime struct {
+	Year   int `json:"year,omitempty"`
+	Month  int `json:"month,omitempty"`
+	Day    int `json:"day,omitempty"`
+	Hour   int `json:"hour,omitempty"`
+	Minute int `json:"minute,omitempty"`
+	Second int `json:"second,omitempty"`
 }
 
 type AgentRating struct {

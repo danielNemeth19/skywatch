@@ -23,16 +23,10 @@ func (p Parser) summarize(data AirData) {
 	}
 }
 
-func (p Parser) checkLegIds(data AirData) {
-	var pass, fail int
-	for id, data := range data.Content.Results.Itineraries {
-		if id == data.LegIds[0] {
-			pass += 1
-		} else {
-			fail += 1
-		}
+func (p Parser) checkLegs(data AirData) {
+	for id, data := range data.Content.Results.Legs {
+		fmt.Printf("id: %s, data: %v\n", id, data)
 	}
-	fmt.Printf("Passed: %d -- Failed: %d\n", pass, fail)
 }
 
 func (p Parser) getOptionData(data AirData) []OptionData {
