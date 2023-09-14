@@ -22,6 +22,8 @@ type Results struct {
 	Itineraries map[string]Itinerary `json:"itineraries,omitempty"`
 	Agents      map[string]Agent     `json:"agents"`
 	Legs        map[string]Leg       `json:"legs,omitempty"`
+	Segments    map[string]Segment   `json:"segments,omitempty"`
+	Places      map[string]Place     `json:"places,omitempty"`
 }
 
 type Agent struct {
@@ -42,6 +44,23 @@ type Leg struct {
 	DurationInMinutes int      `json:"durationInMinutes,omitempty"`
 	StopCount         int      `json:"stopCount,omitempty"`
 	SegmentIds        []string `json:"segmentIds,omitempty"`
+}
+
+type Segment struct {
+	OriginId          string   `json:"originPlaceId,omitempty"`
+	DestinationId     string   `json:"destinationPlaceId,omitempty"`
+	DepartureDateTime DateTime `json:"departureDateTime,omitempty"`
+	ArrivalDateTime   DateTime `json:"arrivalDateTime,omitempty"`
+	DurationInMinutes int      `json:"durationInMinutes,omitempty"`
+}
+
+type Place struct {
+	EntityID    string `json:"entityId,omitempty"`
+	ParentID    string `json:"parentId,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Type        string `json:"type,omitempty"`
+	Iata        string `json:"iata,omitempty"`
+	Coordinates string `json:"coordinates,omitempty"`
 }
 
 type DateTime struct {

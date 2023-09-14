@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+// I think parser could eventually have a field or fields for the data
+// so that it doesn't have to be passed around
 type Parser struct {
 	client Client
 }
@@ -23,10 +25,24 @@ func (p Parser) summarize(data AirData) {
 	}
 }
 
-func (p Parser) checkLegs(data AirData) {
-	for id, data := range data.Content.Results.Legs {
+func (p Parser) checkPlaces(data AirData) {
+	places := data.Content.Results.Places
+	for id, data := range data.Content.Results.Segments {
+		var ps []string
 		fmt.Printf("id: %s, data: %v\n", id, data)
+		placeStack := p.findPlace(places, data.OriginId, ps)
+		fmt.Printf("Places: %#v\n", placeStack)
 	}
+}
+
+func (p Parser) findPlace(places map[string]Place, id string, ps []string) []string {
+	place := places[id]
+	ps = append(ps, place.Name)
+	parentID := place.ParentID
+	if parentID == "" {
+		return ps
+	}
+	return p.findPlace(places, parentID, ps)
 }
 
 func (p Parser) getOptionData(data AirData) []OptionData {
