@@ -165,13 +165,21 @@ type SessionInfo struct {
 }
 
 type OptionData struct {
-	itineraryId string
-	optionIndex int
-	price       float64
-	segmentIds  []string
-	numAgents   int
-	numItems    int
-	numFares    int
-	isDirect    bool
-	bestScore   float64
+	itineraryId    string
+	optionIndex    int
+	price          float64
+	segmentDetails []SegmentData
+	numAgents      int
+	numItems       int
+	numFares       int
+	isDirect       bool
+	score          float64
+}
+
+type SegmentData struct {
+	OriginPlaces      []string
+	DestinationPlaces []string
+	Departure         time.Time
+	Arrival           time.Time
+	DurationInMinutes int
 }

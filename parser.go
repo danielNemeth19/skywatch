@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"log"
 	"sort"
 	"strconv"
@@ -47,37 +48,78 @@ func (p Parser) findPlace(places map[string]Place, id string, ps []string) []str
 
 func (p Parser) getOptionData(data AirData) []OptionData {
 	var options []OptionData
+	places := data.Content.Results.Places
+	segments := data.Content.Results.Segments
 	for id, itinerary := range data.Content.Results.Itineraries {
 		for i, option := range itinerary.PricingOptions {
-			var fares int
-			var segIds []string
-			for _, item := range option.Items {
-				fares += len(item.Fares)
-				for _, fare := range item.Fares {
-					segIds = append(segIds, fare.SegmentId)
-				}
-			}
 			score := p.findBestScore(id, data.Content.SortingOptions.Best)
+			legData := data.Content.Results.Legs[id]
 			od := OptionData{
 				itineraryId: id,
 				optionIndex: i,
-				bestScore:   score,
-				segmentIds:  segIds,
+				score:   score,
+				segmentDetails: p.collectSegmentDetails(places, segments, legData.SegmentIds), 
 				price:       p.convertPrice(option.Price),
+				isDirect:    p.isDirectFlight(legData),
 				numAgents:   len(option.AgentIds),
 				numItems:    len(option.Items),
-				numFares:    fares,
+				numFares:    len(legData.SegmentIds),
 			}
-			od.isDirect = od.isDirectFlight()
 			options = append(options, od)
 		}
 	}
-	sort.Slice(options, func(i, j int) bool { return options[i].bestScore > options[j].bestScore })
+	sort.Slice(options, func(i, j int) bool { return options[i].score > options[j].score })
+
+	printResult(options)
 	return options
 }
 
-func (od OptionData) isDirectFlight() bool {
-	if od.numAgents == 1 && od.numItems == 1 && od.numFares == 1 {
+func (p Parser) collectSegmentDetails(places map[string]Place, segments map[string]Segment, segmentIds []string) []SegmentData {
+	var sg []SegmentData
+	for _, segmentId := range segmentIds {
+		segment := segments[segmentId]
+		var op, dp []string
+		departure := time.Date(
+			segment.DepartureDateTime.Year,
+			time.Month(segment.DepartureDateTime.Month),
+			segment.DepartureDateTime.Day,
+			segment.DepartureDateTime.Hour,
+			segment.DepartureDateTime.Minute,
+			0, 0, time.Local,
+		)
+		arrival := time.Date(
+			segment.ArrivalDateTime.Year,
+			time.Month(segment.ArrivalDateTime.Month),
+			segment.ArrivalDateTime.Day,
+			segment.ArrivalDateTime.Hour,
+			segment.ArrivalDateTime.Minute,
+			0, 0, time.Local,
+		)
+		segmentData := SegmentData{
+			OriginPlaces: p.findPlace(places, segment.OriginId, op),
+			DestinationPlaces: p.findPlace(places, segment.DestinationId, dp),
+			Departure: departure,
+			Arrival: arrival,
+			DurationInMinutes: segment.DurationInMinutes,
+		}
+		sg = append(sg, segmentData)
+	}
+	return sg
+}
+
+func printResult(options []OptionData) {
+	for i, data := range options {
+		fmt.Printf("\n%d --%s\n", i, data.itineraryId)
+		fmt.Printf("Price: %f score(%f) direct: %v\n", data.price, data.score, data.isDirect)
+		for _, s := range data.segmentDetails {
+			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.Departure)
+			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.Arrival)
+		}
+	}
+}
+
+func (p Parser) isDirectFlight(legData Leg) bool {
+	if legData.StopCount == 0 {
 		return true
 	}
 	return false
@@ -110,6 +152,7 @@ func (p Parser) findBestScore(itinerary string, data []Best) float64 {
 	for _, v := range data {
 		if v.ItineraryId == itinerary {
 			score = v.Score
+			break
 		}
 	}
 	return score
