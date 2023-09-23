@@ -2,68 +2,51 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"log"
 	"sort"
 	"strconv"
+	"time"
 )
 
-// I think parser could eventually have a field or fields for the data
-// so that it doesn't have to be passed around
 type Parser struct {
-	client Client
+	data AirData
 }
 
-func (p Parser) summarize(data AirData) {
-	best := data.Content.SortingOptions.Best[0]
-	fmt.Printf("Best score is -- score: %f -- itinerary id: %s\n", best.Score, best.ItineraryId)
-	bestItinerary := data.Content.Results.Itineraries[best.ItineraryId]
-	for i, option := range bestItinerary.PricingOptions {
-		fmt.Printf("Option %d\n", i)
-		fmt.Printf("\tPrice: %f\n", p.convertPrice(option.Price))
-		fmt.Printf("\tAgent ids: %s\n", option.AgentIds)
-		fmt.Printf("\tItems: %s\n", option.Items)
-	}
-}
-
-func (p Parser) checkPlaces(data AirData) {
-	places := data.Content.Results.Places
-	for id, data := range data.Content.Results.Segments {
+func (p Parser) checkPlaces() {
+	for id, data := range p.data.Content.Results.Segments {
 		var ps []string
 		fmt.Printf("id: %s, data: %v\n", id, data)
-		placeStack := p.findPlace(places, data.OriginId, ps)
+		placeStack := p.findPlace(data.OriginId, ps)
 		fmt.Printf("Places: %#v\n", placeStack)
 	}
 }
 
-func (p Parser) findPlace(places map[string]Place, id string, ps []string) []string {
-	place := places[id]
+func (p Parser) findPlace(id string, ps []string) []string {
+	place := p.data.Content.Results.Places[id]
 	ps = append(ps, place.Name)
 	parentID := place.ParentID
 	if parentID == "" {
 		return ps
 	}
-	return p.findPlace(places, parentID, ps)
+	return p.findPlace(parentID, ps)
 }
 
-func (p Parser) getOptionData(data AirData) []OptionData {
+func (p Parser) getOptionData() []OptionData {
 	var options []OptionData
-	places := data.Content.Results.Places
-	segments := data.Content.Results.Segments
-	for id, itinerary := range data.Content.Results.Itineraries {
+	for id, itinerary := range p.data.Content.Results.Itineraries {
 		for i, option := range itinerary.PricingOptions {
-			score := p.findBestScore(id, data.Content.SortingOptions.Best)
-			legData := data.Content.Results.Legs[id]
+			score := p.findBestScore(id)
+			legData := p.data.Content.Results.Legs[id]
 			od := OptionData{
-				itineraryId: id,
-				optionIndex: i,
-				score:   score,
-				segmentDetails: p.collectSegmentDetails(places, segments, legData.SegmentIds), 
-				price:       p.convertPrice(option.Price),
-				isDirect:    p.isDirectFlight(legData),
-				numAgents:   len(option.AgentIds),
-				numItems:    len(option.Items),
-				numFares:    len(legData.SegmentIds),
+				itineraryId:    id,
+				optionIndex:    i,
+				score:          score,
+				segmentDetails: p.collectSegmentDetails(legData.SegmentIds),
+				price:          p.convertPrice(option.Price),
+				isDirect:       p.isDirectFlight(legData),
+				numAgents:      len(option.AgentIds),
+				numItems:       len(option.Items),
+				numFares:       len(legData.SegmentIds),
 			}
 			options = append(options, od)
 		}
@@ -74,10 +57,10 @@ func (p Parser) getOptionData(data AirData) []OptionData {
 	return options
 }
 
-func (p Parser) collectSegmentDetails(places map[string]Place, segments map[string]Segment, segmentIds []string) []SegmentData {
+func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 	var sg []SegmentData
 	for _, segmentId := range segmentIds {
-		segment := segments[segmentId]
+		segment := p.data.Content.Results.Segments[segmentId]
 		var op, dp []string
 		departure := time.Date(
 			segment.DepartureDateTime.Year,
@@ -96,10 +79,10 @@ func (p Parser) collectSegmentDetails(places map[string]Place, segments map[stri
 			0, 0, time.Local,
 		)
 		segmentData := SegmentData{
-			OriginPlaces: p.findPlace(places, segment.OriginId, op),
-			DestinationPlaces: p.findPlace(places, segment.DestinationId, dp),
-			Departure: departure,
-			Arrival: arrival,
+			OriginPlaces:      p.findPlace(segment.OriginId, op),
+			DestinationPlaces: p.findPlace(segment.DestinationId, dp),
+			Departure:         departure,
+			Arrival:           arrival,
 			DurationInMinutes: segment.DurationInMinutes,
 		}
 		sg = append(sg, segmentData)
@@ -147,9 +130,9 @@ func (p Parser) summarizeAgents(data AirData) {
 	}
 }
 
-func (p Parser) findBestScore(itinerary string, data []Best) float64 {
+func (p Parser) findBestScore(itinerary string) float64 {
 	var score float64
-	for _, v := range data {
+	for _, v := range p.data.Content.SortingOptions.Best {
 		if v.ItineraryId == itinerary {
 			score = v.Score
 			break

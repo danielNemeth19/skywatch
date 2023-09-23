@@ -30,11 +30,10 @@ func main() {
 	budgetAgent := flag.Bool("budget", true, "If true, only budget airlines will be queried")
 	flag.Parse()
 
-	var parser Parser
-	parser = Parser{}
+	var client Client
 
 	if *useDisk == true {
-		parser.client = LocalClient{fileName: *fileName}
+		client = LocalClient{fileName: *fileName}
 	} else {
 		skyClient := SkyScannerClient{
 			apiKey:   getApiKey(),
@@ -53,8 +52,10 @@ func main() {
 				budgetAgent: *budgetAgent,
 			},
 		}
-		parser.client = skyClient
+		client = skyClient
 	}
-	data := parser.client.getData()
-	parser.getOptionData(data)
+	parser := Parser{
+		data: client.getData(),
+	}
+	parser.getOptionData()
 }
