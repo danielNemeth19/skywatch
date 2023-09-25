@@ -24,6 +24,7 @@ type Results struct {
 	Legs        map[string]Leg       `json:"legs,omitempty"`
 	Segments    map[string]Segment   `json:"segments,omitempty"`
 	Places      map[string]Place     `json:"places,omitempty"`
+	Carriers map[string]Carrier      `json:"carriers,omitempty"`
 }
 
 type Agent struct {
@@ -52,6 +53,7 @@ type Segment struct {
 	DepartureDateTime DateTime `json:"departureDateTime,omitempty"`
 	ArrivalDateTime   DateTime `json:"arrivalDateTime,omitempty"`
 	DurationInMinutes int      `json:"durationInMinutes,omitempty"`
+	MarketingCarrierId string  `json:"marketingCarrierId,omitempty"`
 }
 
 type Place struct {
@@ -61,6 +63,15 @@ type Place struct {
 	Type        string `json:"type,omitempty"`
 	Iata        string `json:"iata,omitempty"`
 	Coordinates string `json:"coordinates,omitempty"`
+}
+
+type Carrier struct {
+	Name string `json:"name,omitempty"`
+	AllianceId string `json:"allianceId,omitempty"`
+	ImageUrl string `json:"imageUrl,omitempty"`
+	Iata string `json:"iata,omitempty"`
+	Icao string `json:"icao,omitempty"`
+	DisplayCode string `json:"displayCode,omitempty"`
 }
 
 type DateTime struct {
@@ -182,4 +193,5 @@ type SegmentData struct {
 	Departure         time.Time
 	Arrival           time.Time
 	DurationInMinutes int
+	MarketingCarrierId string
 }

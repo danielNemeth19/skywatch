@@ -84,6 +84,7 @@ func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 			Departure:         departure,
 			Arrival:           arrival,
 			DurationInMinutes: segment.DurationInMinutes,
+			MarketingCarrierId: p.data.Content.Results.Carriers[segment.MarketingCarrierId].Name,
 		}
 		sg = append(sg, segmentData)
 	}
@@ -93,10 +94,11 @@ func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 func printResult(options []OptionData) {
 	for i, data := range options {
 		fmt.Printf("\n%d --%s\n", i, data.itineraryId)
-		fmt.Printf("Price: %f score(%f) direct: %v\n", data.price, data.score, data.isDirect)
+		fmt.Printf("Price: %f score (%f) direct: %v\n", data.price, data.score, data.isDirect)
 		for _, s := range data.segmentDetails {
 			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.Departure)
 			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.Arrival)
+			fmt.Printf("Carrier:\n\t%s\n", s.MarketingCarrierId)
 		}
 	}
 }
