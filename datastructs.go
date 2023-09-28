@@ -9,6 +9,7 @@ var priceUnitEnum = map[string]float64{
 	"PRICE_UNIT_MICRO": 1000000,
 }
 
+
 type AirData struct {
 	Content Content `json:"content,omitempty"`
 }
@@ -24,7 +25,7 @@ type Results struct {
 	Legs        map[string]Leg       `json:"legs,omitempty"`
 	Segments    map[string]Segment   `json:"segments,omitempty"`
 	Places      map[string]Place     `json:"places,omitempty"`
-	Carriers map[string]Carrier      `json:"carriers,omitempty"`
+	Carriers    map[string]Carrier   `json:"carriers,omitempty"`
 }
 
 type Agent struct {
@@ -48,12 +49,12 @@ type Leg struct {
 }
 
 type Segment struct {
-	OriginId          string   `json:"originPlaceId,omitempty"`
-	DestinationId     string   `json:"destinationPlaceId,omitempty"`
-	DepartureDateTime DateTime `json:"departureDateTime,omitempty"`
-	ArrivalDateTime   DateTime `json:"arrivalDateTime,omitempty"`
-	DurationInMinutes int      `json:"durationInMinutes,omitempty"`
-	MarketingCarrierId string  `json:"marketingCarrierId,omitempty"`
+	OriginId           string   `json:"originPlaceId,omitempty"`
+	DestinationId      string   `json:"destinationPlaceId,omitempty"`
+	DepartureDateTime  DateTime `json:"departureDateTime,omitempty"`
+	ArrivalDateTime    DateTime `json:"arrivalDateTime,omitempty"`
+	DurationInMinutes  int      `json:"durationInMinutes,omitempty"`
+	MarketingCarrierId string   `json:"marketingCarrierId,omitempty"`
 }
 
 type Place struct {
@@ -66,11 +67,11 @@ type Place struct {
 }
 
 type Carrier struct {
-	Name string `json:"name,omitempty"`
-	AllianceId string `json:"allianceId,omitempty"`
-	ImageUrl string `json:"imageUrl,omitempty"`
-	Iata string `json:"iata,omitempty"`
-	Icao string `json:"icao,omitempty"`
+	Name        string `json:"name,omitempty"`
+	AllianceId  string `json:"allianceId,omitempty"`
+	ImageUrl    string `json:"imageUrl,omitempty"`
+	Iata        string `json:"iata,omitempty"`
+	Icao        string `json:"icao,omitempty"`
 	DisplayCode string `json:"displayCode,omitempty"`
 }
 
@@ -188,10 +189,10 @@ type OptionData struct {
 }
 
 type SegmentData struct {
-	OriginPlaces      []string
-	DestinationPlaces []string
-	Departure         time.Time
-	Arrival           time.Time
-	DurationInMinutes int
+	OriginPlaces       []string
+	DestinationPlaces  []string
+	DepartAt           time.Time
+	ArriveAt           time.Time
+	DurationInMinutes  int
 	MarketingCarrierId string
 }

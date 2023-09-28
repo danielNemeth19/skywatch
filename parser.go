@@ -8,17 +8,13 @@ import (
 	"time"
 )
 
+const (
+	Departure = "Departure"
+	Arrival  = "Arrival"
+)
+
 type Parser struct {
 	data AirData
-}
-
-func (p Parser) checkPlaces() {
-	for id, data := range p.data.Content.Results.Segments {
-		var ps []string
-		fmt.Printf("id: %s, data: %v\n", id, data)
-		placeStack := p.findPlace(data.OriginId, ps)
-		fmt.Printf("Places: %#v\n", placeStack)
-	}
 }
 
 func (p Parser) findPlace(id string, ps []string) []string {
@@ -37,7 +33,7 @@ func (p Parser) getOptionData() []OptionData {
 		for i, option := range itinerary.PricingOptions {
 			score := p.findBestScore(id)
 			legData := p.data.Content.Results.Legs[id]
-			od := OptionData{
+			od := OptionData {
 				itineraryId:    id,
 				optionIndex:    i,
 				score:          score,
@@ -57,33 +53,43 @@ func (p Parser) getOptionData() []OptionData {
 	return options
 }
 
+
+func (s Segment) createDateTime(direction string) time.Time {
+	switch direction {
+	case Departure:
+		return time.Date(
+			s.DepartureDateTime.Year,
+			time.Month(s.DepartureDateTime.Month),
+			s.DepartureDateTime.Day,
+			s.DepartureDateTime.Hour,
+			s.DepartureDateTime.Minute,
+			0, 0, time.Local,
+		)
+	default:
+		return time.Date(
+			s.ArrivalDateTime.Year,
+			time.Month(s.ArrivalDateTime.Month),
+			s.ArrivalDateTime.Day,
+			s.ArrivalDateTime.Hour,
+			s.ArrivalDateTime.Minute,
+			0, 0, time.Local,
+		)
+	}
+}
+
 func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 	var sg []SegmentData
 	for _, segmentId := range segmentIds {
 		segment := p.data.Content.Results.Segments[segmentId]
 		var op, dp []string
-		departure := time.Date(
-			segment.DepartureDateTime.Year,
-			time.Month(segment.DepartureDateTime.Month),
-			segment.DepartureDateTime.Day,
-			segment.DepartureDateTime.Hour,
-			segment.DepartureDateTime.Minute,
-			0, 0, time.Local,
-		)
-		arrival := time.Date(
-			segment.ArrivalDateTime.Year,
-			time.Month(segment.ArrivalDateTime.Month),
-			segment.ArrivalDateTime.Day,
-			segment.ArrivalDateTime.Hour,
-			segment.ArrivalDateTime.Minute,
-			0, 0, time.Local,
-		)
+		departure := segment.createDateTime(Departure)
+		arrival := segment.createDateTime(Arrival)
 		segmentData := SegmentData{
-			OriginPlaces:      p.findPlace(segment.OriginId, op),
-			DestinationPlaces: p.findPlace(segment.DestinationId, dp),
-			Departure:         departure,
-			Arrival:           arrival,
-			DurationInMinutes: segment.DurationInMinutes,
+			OriginPlaces:       p.findPlace(segment.OriginId, op),
+			DestinationPlaces:  p.findPlace(segment.DestinationId, dp),
+			DepartAt:           departure,
+			ArriveAt:           arrival,
+			DurationInMinutes:  segment.DurationInMinutes,
 			MarketingCarrierId: p.data.Content.Results.Carriers[segment.MarketingCarrierId].Name,
 		}
 		sg = append(sg, segmentData)
@@ -93,12 +99,15 @@ func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 
 func printResult(options []OptionData) {
 	for i, data := range options {
-		fmt.Printf("\n%d --%s\n", i, data.itineraryId)
-		fmt.Printf("Price: %f score (%f) direct: %v\n", data.price, data.score, data.isDirect)
-		for _, s := range data.segmentDetails {
-			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.Departure)
-			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.Arrival)
-			fmt.Printf("Carrier:\n\t%s\n", s.MarketingCarrierId)
+		if data.isDirect == true {
+			fmt.Printf("\n%d --%s\n", i, data.itineraryId)
+			fmt.Printf("Price: %f score (%f) direct: %v\n", data.price, data.score, data.isDirect)
+			for _, s := range data.segmentDetails {
+				fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt.Format(time.DateTime))
+				fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt.Format(time.DateTime))
+				fmt.Printf("Duration: %d\n", s.DurationInMinutes)
+				fmt.Printf("Carrier: %s\n", s.MarketingCarrierId)
+			}
 		}
 	}
 }
