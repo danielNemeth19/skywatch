@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 const (
@@ -52,6 +53,7 @@ func (s SkyScannerClient) sendRequest(method string, url string, payload []byte)
 	}
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("x-api-key", s.apiKey)
+	time.Sleep(2 * time.Second)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatal(err)

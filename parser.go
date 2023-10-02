@@ -34,20 +34,20 @@ func (p Parser) getOptionData() []OptionData {
 			score := p.findBestScore(id)
 			legData := p.data.Content.Results.Legs[id]
 			od := OptionData {
-				itineraryId:    id,
-				optionIndex:    i,
-				score:          score,
-				segmentDetails: p.collectSegmentDetails(legData.SegmentIds),
-				price:          p.convertPrice(option.Price),
-				isDirect:       p.isDirectFlight(legData),
-				numAgents:      len(option.AgentIds),
-				numItems:       len(option.Items),
-				numFares:       len(legData.SegmentIds),
+				ItineraryId:    id,
+				OptionIndex:    i,
+				Score:          score,
+				SegmentDetails: p.collectSegmentDetails(legData.SegmentIds),
+				Price:          p.convertPrice(option.Price),
+				IsDirect:       p.isDirectFlight(legData),
+				NumAgents:      len(option.AgentIds),
+				NumItems:       len(option.Items),
+				NumFares:       len(legData.SegmentIds),
 			}
 			options = append(options, od)
 		}
 	}
-	sort.Slice(options, func(i, j int) bool { return options[i].score > options[j].score })
+	sort.Slice(options, func(i, j int) bool { return options[i].Score > options[j].Score })
 
 	printResult(options)
 	return options
@@ -99,15 +99,13 @@ func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 
 func printResult(options []OptionData) {
 	for i, data := range options {
-		if data.isDirect == true {
-			fmt.Printf("\n%d --%s\n", i, data.itineraryId)
-			fmt.Printf("Price: %f score (%f) direct: %v\n", data.price, data.score, data.isDirect)
-			for _, s := range data.segmentDetails {
-				fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt.Format(time.DateTime))
-				fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt.Format(time.DateTime))
-				fmt.Printf("Duration: %d\n", s.DurationInMinutes)
-				fmt.Printf("Carrier: %s\n", s.MarketingCarrierId)
-			}
+		fmt.Printf("\n%d --%s\n", i, data.ItineraryId)
+		fmt.Printf("Price: %f score (%f) direct: %v\n", data.Price, data.Score, data.IsDirect)
+		for _, s := range data.SegmentDetails {
+			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt.Format(time.DateTime))
+			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt.Format(time.DateTime))
+			fmt.Printf("Duration: %d\n", s.DurationInMinutes)
+			fmt.Printf("Carrier: %s\n", s.MarketingCarrierId)
 		}
 	}
 }

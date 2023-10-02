@@ -57,5 +57,6 @@ func main() {
 	parser := Parser{
 		data: client.getData(),
 	}
-	parser.getOptionData()
+	od := parser.getOptionData()
+	writeResult(od)
 }

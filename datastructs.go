@@ -177,15 +177,15 @@ type SessionInfo struct {
 }
 
 type OptionData struct {
-	itineraryId    string
-	optionIndex    int
-	price          float64
-	segmentDetails []SegmentData
-	numAgents      int
-	numItems       int
-	numFares       int
-	isDirect       bool
-	score          float64
+	ItineraryId    string
+	OptionIndex    int
+	Price          float64
+	SegmentDetails []SegmentData
+	NumAgents      int
+	NumItems       int
+	NumFares       int
+	IsDirect       bool
+	Score          float64
 }
 
 type SegmentData struct {

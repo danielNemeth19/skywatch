@@ -1,0 +1,42 @@
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<style>
+            body {
+				background: black;
+                color: #FF7A59;
+				font-size: 25px;
+            }
+			#section {
+				margin-top: 30px;
+				margin-bottom: 30px;
+			}
+			#flight-info {
+				margin-left: 15px;
+			}
+        </style>
+	</head>
+	<body>
+		{{range .}}
+		<div id="section">
+			<p>Price: {{.Price}} HUF Score: {{.Score}}</p>
+			{{range .SegmentDetails}}
+			<div id="flight-info">
+				<p>{{index .OriginPlaces 0 }} {{index .OriginPlaces 1}} {{index .OriginPlaces 2}}</p>
+				<p>{{index .DestinationPlaces 0}} {{index .DestinationPlaces 1}} {{index .DestinationPlaces 1}}</p>
+			</div>
+			{{end}}
+		</div>
+		{{end}}
+	</body>
+</html>
+
+
+
+
+
+
+
+
+
+
