@@ -8,7 +8,7 @@ import (
 )
 
 func writeResult(data []OptionData) {
-	ts := template.Must(template.ParseFiles("index.html"))
+	ts := template.Must(template.ParseFiles("ui/index.html"))
 	output, err := os.Create("output/test2.html")
 	if err != nil {
 		log.Fatal(err)

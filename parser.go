@@ -10,7 +10,7 @@ import (
 
 const (
 	Departure = "Departure"
-	Arrival  = "Arrival"
+	Arrival   = "Arrival"
 )
 
 type Parser struct {
@@ -33,7 +33,7 @@ func (p Parser) getOptionData() []OptionData {
 		for i, option := range itinerary.PricingOptions {
 			score := p.findBestScore(id)
 			legData := p.data.Content.Results.Legs[id]
-			od := OptionData {
+			od := OptionData{
 				ItineraryId:    id,
 				OptionIndex:    i,
 				Score:          score,
@@ -52,7 +52,6 @@ func (p Parser) getOptionData() []OptionData {
 	printResult(options)
 	return options
 }
-
 
 func (s Segment) createDateTime(direction string) time.Time {
 	switch direction {
@@ -88,9 +87,11 @@ func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 			OriginPlaces:       p.findPlace(segment.OriginId, op),
 			DestinationPlaces:  p.findPlace(segment.DestinationId, dp),
 			DepartAt:           departure,
+			DepartTime:         departure.Format("15:04"),
 			ArriveAt:           arrival,
+			ArriveTime:         arrival.Format("15:04"),
 			DurationInMinutes:  segment.DurationInMinutes,
-			MarketingCarrierId: p.data.Content.Results.Carriers[segment.MarketingCarrierId].Name,
+			MarketingCarrier: p.data.Content.Results.Carriers[segment.MarketingCarrierId].Name,
 		}
 		sg = append(sg, segmentData)
 	}
@@ -105,7 +106,7 @@ func printResult(options []OptionData) {
 			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt.Format(time.DateTime))
 			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt.Format(time.DateTime))
 			fmt.Printf("Duration: %d\n", s.DurationInMinutes)
-			fmt.Printf("Carrier: %s\n", s.MarketingCarrierId)
+			fmt.Printf("Carrier: %s\n", s.MarketingCarrier)
 		}
 	}
 }

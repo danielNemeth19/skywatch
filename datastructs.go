@@ -9,7 +9,6 @@ var priceUnitEnum = map[string]float64{
 	"PRICE_UNIT_MICRO": 1000000,
 }
 
-
 type AirData struct {
 	Content Content `json:"content,omitempty"`
 }
@@ -192,7 +191,9 @@ type SegmentData struct {
 	OriginPlaces       []string
 	DestinationPlaces  []string
 	DepartAt           time.Time
+	DepartTime         string
 	ArriveAt           time.Time
+	ArriveTime         string
 	DurationInMinutes  int
-	MarketingCarrierId string
+	MarketingCarrier string
 }
