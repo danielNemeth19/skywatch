@@ -10,7 +10,8 @@ var priceUnitEnum = map[string]float64{
 }
 
 type AirData struct {
-	Content Content `json:"content,omitempty"`
+	Content        Content `json:"content,omitempty"`
+	PayloadBuilder `json:"payload,omitempty"`
 }
 
 type Content struct {
@@ -188,12 +189,12 @@ type OptionData struct {
 }
 
 type SegmentData struct {
-	OriginPlaces       []string
-	DestinationPlaces  []string
-	DepartAt           time.Time
-	DepartTime         string
-	ArriveAt           time.Time
-	ArriveTime         string
-	DurationInMinutes  int
-	MarketingCarrier string
+	OriginPlaces      []string
+	DestinationPlaces []string
+	DepartAt          time.Time
+	DepartTime        string
+	ArriveAt          time.Time
+	ArriveTime        string
+	DurationInMinutes int
+	MarketingCarrier  string
 }

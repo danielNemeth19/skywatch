@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"log"
 	"sort"
 	"strconv"
@@ -125,7 +126,7 @@ func (p Parser) convertPrice(priceData Price) float64 {
 		log.Println("No price data available")
 		return 0
 	}
-	return price / convertWith
+	return math.Round(price / convertWith)
 }
 
 func (p Parser) summarizeAgents(data AirData) {

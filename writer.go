@@ -3,27 +3,23 @@ package main
 import (
 	"html/template"
 	"log"
-	//"bytes"
 	"os"
+	"strings"
 )
 
-func writeResult(data []OptionData) {
+func writeResult(data []OptionData, fn string) {
 	ts := template.Must(template.ParseFiles("ui/index.html"))
-	output, err := os.Create("output/test2.html")
+
+	name := strings.TrimSuffix(fn, ".json")
+	html_fn := name + ".html"
+	output, err := os.Create("output/" + html_fn)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//buf := new(bytes.Buffer)
 	err = ts.Execute(output, data)
 	if err != nil {
 		log.Fatal(err)
 	}
-	//fileToWrite := "output/test.html"
-	//err = os.WriteFile(fileToWrite, buf.Bytes(), 0644)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
 	output.Close()
-
 }

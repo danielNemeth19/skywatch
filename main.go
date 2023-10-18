@@ -43,13 +43,13 @@ func main() {
 				pathParam: *pathParam,
 			},
 			PayloadBuilder: PayloadBuilder{
-				origin:      *origin,
-				destination: *destination,
-				market:      *market,
-				locale:      *locale,
-				currency:    *currency,
-				sDate:       *startDate,
-				budgetAgent: *budgetAgent,
+				Origin:      *origin,
+				Destination: *destination,
+				Market:      *market,
+				Locale:      *locale,
+				Currency:    *currency,
+				SDate:       *startDate,
+				BudgetAgent: *budgetAgent,
 			},
 		}
 		client = skyClient
@@ -58,5 +58,5 @@ func main() {
 		data: client.getData(),
 	}
 	od := parser.getOptionData()
-	writeResult(od)
+	writeResult(od, *fileName)
 }

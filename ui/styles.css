@@ -27,12 +27,9 @@ p {
 	margin-block-end: 15px;
 }
 
-.title {
-	text-align: center;
-}
-
 .title, .heading {
 	color: var(--color-subtext);
+	text-align: center;
 }
 
 .itinery__section {

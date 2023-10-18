@@ -94,9 +94,12 @@ func (s SkyScannerClient) PollUntilCompletes(body []byte) []byte {
 	return body
 }
 
-func (s SkyScannerClient) StoreResult(body []byte) {
+
+func (s SkyScannerClient) StoreResult(data AirData) {
+	marshaled, err := json.Marshal(data)
+
 	var jsonResult bytes.Buffer
-	err := json.Indent(&jsonResult, body, "", "\t")
+	err = json.Indent(&jsonResult, marshaled, "", "\t")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -116,11 +119,12 @@ func (s SkyScannerClient) getData() AirData {
 
 	body := s.sendRequest(http.MethodPost, s.urlParts.Compose(), payload)
 	fb := s.PollUntilCompletes(body)
-	s.StoreResult(fb)
 
 	var airData AirData
 	if err := json.Unmarshal(fb, &airData); err != nil {
 		panic(err)
 	}
+	airData.PayloadBuilder = s.PayloadBuilder
+	s.StoreResult(airData)
 	return airData
 }
