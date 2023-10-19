@@ -28,7 +28,7 @@ func (p Parser) findPlace(id string, ps []string) []string {
 	return p.findPlace(parentID, ps)
 }
 
-func (p Parser) getOptionData() []OptionData {
+func (p Parser) getOptionData() FlightData {
 	var options []OptionData
 	for id, itinerary := range p.data.Content.Results.Itineraries {
 		for i, option := range itinerary.PricingOptions {
@@ -51,7 +51,11 @@ func (p Parser) getOptionData() []OptionData {
 	sort.Slice(options, func(i, j int) bool { return options[i].Score > options[j].Score })
 
 	printResult(options)
-	return options
+	flightData := FlightData{
+		Options: options,
+		Payload: p.data.Payload,
+	}
+	return flightData
 }
 
 func (s Segment) createDateTime(direction string) time.Time {

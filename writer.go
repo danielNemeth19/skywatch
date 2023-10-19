@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func writeResult(data []OptionData, fn string) {
+func writeResult(data FlightData, fn string) {
 	ts := template.Must(template.ParseFiles("ui/index.html"))
 
 	name := strings.TrimSuffix(fn, ".json")

@@ -5,17 +5,17 @@ import (
 )
 
 type PayloadBuilder struct {
-	Market      string `json:"market,omitempty"`
-	Locale      string `json:"locale,omitempty"`
-	Currency    string `json:"currency,omitempty"`
-	Origin      string `json:"origin,omitempty"`
-	Destination string `json:"destination,omitempty"`
-	SDate       string` json:"sDate,omitempty"`
-	BudgetAgent bool
+	market      string
+	locale      string
+	currency    string
+	origin      string
+	destination string
+	sDate       string
+	budgetAgent bool
 }
 
 func (builder PayloadBuilder) parseDateString() time.Time {
-	date, err := time.Parse("20060102", builder.SDate)
+	date, err := time.Parse("20060102", builder.sDate)
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +23,7 @@ func (builder PayloadBuilder) parseDateString() time.Time {
 }
 
 func (builder PayloadBuilder) setIncludedAgentIds() []string {
-	if builder.BudgetAgent == true {
+	if builder.budgetAgent == true {
 		return []string{"wizz", "ryan", "easy", "eapr"}
 	}
 	return []string{}
@@ -33,13 +33,13 @@ func (builder PayloadBuilder) Assemble() Payload {
 	date := builder.parseDateString()
 	var payload Payload
 	payload.Query = PayloadData{
-		Market:   builder.Market,
-		Locale:   builder.Locale,
-		Currency: builder.Currency,
+		Market:   builder.market,
+		Locale:   builder.locale,
+		Currency: builder.currency,
 		QueryLegs: []QueryLegs{
 			{
-				OriginPlaceId:      IataInfo{Iata: builder.Origin},
-				DestinationPlaceId: IataInfo{Iata: builder.Destination},
+				OriginPlaceId:      IataInfo{Iata: builder.origin},
+				DestinationPlaceId: IataInfo{Iata: builder.destination},
 				Date: DateInfo{
 					Year: date.Year(), Month: date.Month(), Day: date.Day(),
 				},

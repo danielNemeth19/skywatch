@@ -111,7 +111,8 @@ func (s SkyScannerClient) StoreResult(data AirData) {
 }
 
 func (s SkyScannerClient) getData() AirData {
-	payload, err := json.Marshal(s.PayloadBuilder.Assemble())
+	params := s.PayloadBuilder.Assemble()
+	payload, err := json.Marshal(params)
 	if err != nil {
 		panic(err)
 	}
@@ -124,7 +125,7 @@ func (s SkyScannerClient) getData() AirData {
 	if err := json.Unmarshal(fb, &airData); err != nil {
 		panic(err)
 	}
-	airData.PayloadBuilder = s.PayloadBuilder
+	airData.Payload = params
 	s.StoreResult(airData)
 	return airData
 }

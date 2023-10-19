@@ -5,10 +5,10 @@
 	</head>
 	<body>
 		<div class="title">
-			<h1>Budapest - Barcelona, 14 Nov 2023</h1>
+			<h1>{{ (index .Query.QueryLegs 0).OriginPlaceId.Iata }} - {{ (index .Query.QueryLegs 0).DestinationPlaceId.Iata }}</h1>
 		</div>
 		<div id="container">
-			{{range $i, $data := .}}
+			{{range $i, $data := .Options}}
 			{{if $data.IsDirect}}
 			<div class="itinery__section">
 				<div id="option-section">
@@ -21,7 +21,7 @@
 						</div>
 						<div class="score">
 							<div>Carrier</div>
-							<span>{{ index (index $data.SegmentDetails 0).MarketingCarrier }}</span>
+							<span>{{ (index $data.SegmentDetails 0).MarketingCarrier }}</span>
 						</div>
 						<div class="flight__data__right">
 							<p>14 Nov 2023</p>
@@ -29,17 +29,17 @@
 					</div>
 					<div class="flight__data">
 						<div class="flight__data__left">
-							<time class="hour">{{ index (index $data.SegmentDetails 0).DepartTime }}</time>
-							<span class="city">{{ index (index $data.SegmentDetails 0).OriginPlaces 0}}</span>
+							<time class="hour">{{ (index $data.SegmentDetails 0).DepartTime }}</time>
+							<span class="city">{{ index (index $data.SegmentDetails 0).OriginPlaces 0 }}</span>
 
 						</div>
 						<div class="flight__data__length">
 							<span class="arrow">&#10230;</span>
-							<span class="flight-time">{{ index (index $data.SegmentDetails 0).DurationInMinutes }} min</span>
+							<span class="flight-time">{{ (index $data.SegmentDetails 0).DurationInMinutes }} min</span>
 						</div>
 						<div class="flight__data__right">
-							<time class="hour">{{ index (index $data.SegmentDetails 0).ArriveTime }}</time>
-							<span class="city">{{ index (index $data.SegmentDetails 0).DestinationPlaces 0}}</span>
+							<time class="hour">{{ (index $data.SegmentDetails 0).ArriveTime }}</time>
+							<span class="city">{{ index (index $data.SegmentDetails 0).DestinationPlaces 0 }}</span>
 						</div>
 					</div>
 				</div>
