@@ -9,42 +9,42 @@
 		</div>
 		<div id="container">
 			{{range $i, $data := .Options}}
-			{{if $data.IsDirect}}
 			<div class="itinery__section">
 				<div id="option-section">
 					<h1 class="heading">Itinerary {{$i}}</h1>
 				</div>
-				<div class="wrapper">
-					<div class="flight__data">
-						<div class="flight__data__left">
-							<p>{{$data.Price}} HUF</p>
+				{{ range $data.SegmentDetails }}
+					<div class="wrapper">
+						<div class="flight__data">
+							<div class="flight__data__left">
+								<p>{{$data.Price}} HUF</p>
+							</div>
+							<div class="score">
+								<div>Carrier</div>
+								<span>{{ .MarketingCarrier }}</span>
+							</div>
+							<div class="flight__data__right">
+								<p>14 Nov 2023</p>
+							</div>
 						</div>
-						<div class="score">
-							<div>Carrier</div>
-							<span>{{ (index $data.SegmentDetails 0).MarketingCarrier }}</span>
-						</div>
-						<div class="flight__data__right">
-							<p>14 Nov 2023</p>
-						</div>
-					</div>
-					<div class="flight__data">
-						<div class="flight__data__left">
-							<time class="hour">{{ (index $data.SegmentDetails 0).DepartTime }}</time>
-							<span class="city">{{ index (index $data.SegmentDetails 0).OriginPlaces 0 }}</span>
+						<div class="flight__data">
+							<div class="flight__data__left">
+								<time class="hour">{{ .DepartTime }}</time>
+								<span class="city">{{ index .OriginPlaces 0 }}</span>
 
-						</div>
-						<div class="flight__data__length">
-							<span class="arrow">&#10230;</span>
-							<span class="flight-time">{{ (index $data.SegmentDetails 0).DurationInMinutes }} min</span>
-						</div>
-						<div class="flight__data__right">
-							<time class="hour">{{ (index $data.SegmentDetails 0).ArriveTime }}</time>
-							<span class="city">{{ index (index $data.SegmentDetails 0).DestinationPlaces 0 }}</span>
+							</div>
+							<div class="flight__data__length">
+								<span class="arrow">&#10230;</span>
+								<span class="flight-time">{{ .DurationInMinutes }} min</span>
+							</div>
+							<div class="flight__data__right">
+								<time class="hour">{{ .ArriveTime }}</time>
+								<span class="city">{{ index .DestinationPlaces 0 }}</span>
+							</div>
 						</div>
 					</div>
+					{{end}}
 				</div>
-			</div>
-			{{end}}
 			{{end}}
 		</div>
 	</body>
