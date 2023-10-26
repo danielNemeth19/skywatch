@@ -196,7 +196,7 @@ type OptionData struct {
 type SegmentData struct {
 	OriginPlaces      []string
 	DestinationPlaces []string
-	DepartAt          time.Time
+	DepartAt          string
 	DepartTime        string
 	ArriveAt          time.Time
 	ArriveTime        string

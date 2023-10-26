@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"log"
+	"math"
 	"sort"
 	"strconv"
 	"time"
@@ -18,17 +18,55 @@ type Parser struct {
 	data AirData
 }
 
-func (p Parser) findPlace(id string, ps []string) []string {
-	place := p.data.Content.Results.Places[id]
-	ps = append(ps, place.Name)
-	parentID := place.ParentID
-	if parentID == "" {
-		return ps
+func (p Parser) getFlightData(maxStops int) FlightData {
+	options := p.getOptionData(maxStops)
+	return FlightData{
+		Payload: p.data.Payload,
+		Options: options,
 	}
-	return p.findPlace(parentID, ps)
 }
 
-func (p Parser) getOptionData(maxStops int) FlightData {
+// Function to check that within a pricing option we have as many items as number of agents
+func (p Parser) counter() {
+	pass, fail := 0, 0
+	for _, itinerary := range p.data.Content.Results.Itineraries {
+		for _, option := range itinerary.PricingOptions {
+			numberAgents := len(option.AgentIds)
+			numberItems := len(option.Items)
+			if numberAgents == numberItems {
+				pass++
+			} else {
+				fail++
+			}
+		}
+	}
+	fmt.Printf("Passes: %d -- Failes: %d\n", pass, fail)
+}
+
+func (p Parser) checkItems() {
+	for id, itinerary := range p.data.Content.Results.Itineraries {
+		for optionIndex, option := range itinerary.PricingOptions {
+			totalPrice := p.convertPrice(option.Price)
+			if totalPrice == 0 {
+				fmt.Printf("Price is 0: %s <-> %d\n", id, optionIndex)
+			}
+			if len(option.Items) > 1 {
+				var breakdownPrice float64
+				for itemIndex, z := range option.Items {
+					breakdownPrice += p.convertPrice(z.Price)
+					fmt.Printf("%s <-> %d <-> %s <-> %d <-> %s\n", id, optionIndex, option.Price.Amount, itemIndex, z.Price.Amount)
+				}
+				if totalPrice == breakdownPrice {
+					fmt.Printf("Price breakdown is correct! %f\n", totalPrice)
+				} else {
+					fmt.Printf("Prices don't add up: %f -- %f\n", totalPrice, breakdownPrice)
+				}
+			}
+		}
+	}
+}
+
+func (p Parser) getOptionData(maxStops int) []OptionData {
 	var options []OptionData
 	for id, itinerary := range p.data.Content.Results.Itineraries {
 		for i, option := range itinerary.PricingOptions {
@@ -36,7 +74,7 @@ func (p Parser) getOptionData(maxStops int) FlightData {
 			legData := p.data.Content.Results.Legs[id]
 
 			if legData.StopCount <= maxStops {
-				od := OptionData{
+				od := OptionData {
 					ItineraryId:    id,
 					OptionIndex:    i,
 					Score:          score,
@@ -54,13 +92,18 @@ func (p Parser) getOptionData(maxStops int) FlightData {
 		}
 	}
 	sort.Slice(options, func(i, j int) bool { return options[i].Score > options[j].Score })
+	// printResult(options)
+	return options
+}
 
-	printResult(options)
-	flightData := FlightData{
-		Options: options,
-		Payload: p.data.Payload,
+func (p Parser) findPlace(id string, ps []string) []string {
+	place := p.data.Content.Results.Places[id]
+	ps = append(ps, place.Name)
+	parentID := place.ParentID
+	if parentID == "" {
+		return ps
 	}
-	return flightData
+	return p.findPlace(parentID, ps)
 }
 
 func (s Segment) createDateTime(direction string) time.Time {
@@ -93,15 +136,15 @@ func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 		var op, dp []string
 		departure := segment.createDateTime(Departure)
 		arrival := segment.createDateTime(Arrival)
-		segmentData := SegmentData{
-			OriginPlaces:       p.findPlace(segment.OriginId, op),
-			DestinationPlaces:  p.findPlace(segment.DestinationId, dp),
-			DepartAt:           departure,
-			DepartTime:         departure.Format("15:04"),
-			ArriveAt:           arrival,
-			ArriveTime:         arrival.Format("15:04"),
-			DurationInMinutes:  segment.DurationInMinutes,
-			MarketingCarrier: p.data.Content.Results.Carriers[segment.MarketingCarrierId].Name,
+		segmentData := SegmentData {
+			OriginPlaces:      p.findPlace(segment.OriginId, op),
+			DestinationPlaces: p.findPlace(segment.DestinationId, dp),
+			DepartAt:          departure.Format("2006 Jan 2"),
+			DepartTime:        departure.Format("15:04"),
+			ArriveAt:          arrival,
+			ArriveTime:        arrival.Format("15:04"),
+			DurationInMinutes: segment.DurationInMinutes,
+			MarketingCarrier:  p.data.Content.Results.Carriers[segment.MarketingCarrierId].Name,
 		}
 		sg = append(sg, segmentData)
 	}
@@ -113,7 +156,7 @@ func printResult(options []OptionData) {
 		fmt.Printf("\n%d --%s\n", i, data.ItineraryId)
 		fmt.Printf("Price: %f score (%f) direct: %v\n", data.Price, data.Score, data.IsDirect)
 		for _, s := range data.SegmentDetails {
-			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt.Format(time.DateTime))
+			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt)
 			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt.Format(time.DateTime))
 			fmt.Printf("Duration: %d\n", s.DurationInMinutes)
 			fmt.Printf("Carrier: %s\n", s.MarketingCarrier)
@@ -132,7 +175,6 @@ func (p Parser) convertPrice(priceData Price) float64 {
 	convertWith := priceUnitEnum[priceData.Unit]
 	price, err := strconv.ParseFloat(priceData.Amount, 64)
 	if err != nil {
-		log.Println("No price data available")
 		return 0
 	}
 	return math.Round(price / convertWith)

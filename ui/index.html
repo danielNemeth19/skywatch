@@ -6,12 +6,13 @@
 	<body>
 		<div class="title">
 			<h1>{{ (index .Query.QueryLegs 0).OriginPlaceId.Iata }} - {{ (index .Query.QueryLegs 0).DestinationPlaceId.Iata }}</h1>
+			<h1>{{ (index .Query.QueryLegs 0).Date.Year }} {{ (index .Query.QueryLegs 0).Date.Month }} {{ (index .Query.QueryLegs 0).Date.Day }}</h1>
 		</div>
 		<div id="container">
 			{{range $i, $data := .Options}}
 			<div class="itinery__section">
 				<div id="option-section">
-					<h1 class="heading">Itinerary {{$i}}</h1>
+					<h1 class="heading">Option {{$i}}</h1>
 				</div>
 				{{ range $data.SegmentDetails }}
 					<div class="wrapper">
@@ -24,7 +25,7 @@
 								<span>{{ .MarketingCarrier }}</span>
 							</div>
 							<div class="flight__data__right">
-								<p>14 Nov 2023</p>
+								<p>{{ .DepartAt }}</p>
 							</div>
 						</div>
 						<div class="flight__data">
