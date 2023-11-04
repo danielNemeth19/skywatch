@@ -28,24 +28,29 @@ func (p Parser) findPlace(id string, ps []string) []string {
 	return p.findPlace(parentID, ps)
 }
 
-func (p Parser) getOptionData() FlightData {
+func (p Parser) getOptionData(maxStops int) FlightData {
 	var options []OptionData
 	for id, itinerary := range p.data.Content.Results.Itineraries {
 		for i, option := range itinerary.PricingOptions {
 			score := p.findBestScore(id)
 			legData := p.data.Content.Results.Legs[id]
-			od := OptionData{
-				ItineraryId:    id,
-				OptionIndex:    i,
-				Score:          score,
-				SegmentDetails: p.collectSegmentDetails(legData.SegmentIds),
-				Price:          p.convertPrice(option.Price),
-				IsDirect:       p.isDirectFlight(legData),
-				NumAgents:      len(option.AgentIds),
-				NumItems:       len(option.Items),
-				NumFares:       len(legData.SegmentIds),
+
+			if legData.StopCount <= maxStops {
+				od := OptionData{
+					ItineraryId:    id,
+					OptionIndex:    i,
+					Score:          score,
+					SegmentDetails: p.collectSegmentDetails(legData.SegmentIds),
+					Price:          p.convertPrice(option.Price),
+					IsDirect:       p.isDirectFlight(legData),
+					NumAgents:      len(option.AgentIds),
+					NumItems:       len(option.Items),
+					NumFares:       len(legData.SegmentIds),
+				}
+				options = append(options, od)
+			} else {
+				log.Printf("Skipping as %d > %d - %s\n", legData.StopCount, maxStops, id)
 			}
-			options = append(options, od)
 		}
 	}
 	sort.Slice(options, func(i, j int) bool { return options[i].Score > options[j].Score })

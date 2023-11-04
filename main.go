@@ -28,6 +28,7 @@ func main() {
 	origin := flag.String("origin", "BUD", "Specifies source airport")
 	destination := flag.String("destination", "", "Specifies destination airport")
 	budgetAgent := flag.Bool("budget", true, "If true, only budget airlines will be queried")
+	maxStops := flag.Int("maxStops", 0, "Specifies max number of stops")
 	flag.Parse()
 
 	var client Client
@@ -57,6 +58,6 @@ func main() {
 	parser := Parser{
 		data: client.getData(),
 	}
-	flightData := parser.getOptionData()
+	flightData := parser.getOptionData(*maxStops)
 	writeResult(flightData, *fileName)
 }
