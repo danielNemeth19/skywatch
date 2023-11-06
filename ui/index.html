@@ -9,23 +9,25 @@
 			<h1>{{ (index .Query.QueryLegs 0).Date.Year }} {{ (index .Query.QueryLegs 0).Date.Month }} {{ (index .Query.QueryLegs 0).Date.Day }}</h1>
 		</div>
 		<div id="container">
-			{{range $i, $data := .Options}}
-			<div class="itinery__section">
-				<div id="option-section">
-					<h1 class="heading">Option {{$i}}</h1>
+			{{ range $i, $data := .Options }}
+			<div class="option__section">
+				<div class="option-header">
+					<h1 class="heading">Option {{ $i }}</h1>
+					<h1 class="heading">{{ $data.Price }} HUF</h1>
+					<div class="itinerary-info">{{ $data.ItineraryId }} - {{ $data.OptionIndex }}</div>
 				</div>
 				{{ range $data.SegmentDetails }}
 					<div class="wrapper">
 						<div class="flight__data">
 							<div class="flight__data__left">
-								<p>{{$data.Price}} HUF</p>
+								<p>{{ .DepartAt }}</p>
 							</div>
-							<div class="score">
+							<div class="carrier__info">
 								<div>Carrier</div>
 								<span>{{ .MarketingCarrier }}</span>
 							</div>
 							<div class="flight__data__right">
-								<p>{{ .DepartAt }}</p>
+								<p>{{ .ArriveAt }}</p>
 							</div>
 						</div>
 						<div class="flight__data">
@@ -35,7 +37,9 @@
 
 							</div>
 							<div class="flight__data__length">
-								<span class="arrow">&#10230;</span>
+								<svg class="airplane" viewBox="0 0 23.1 24">
+									<path></path>
+								</svg>
 								<span class="flight-time">{{ .DurationInMinutes }} min</span>
 							</div>
 							<div class="flight__data__right">
@@ -44,9 +48,9 @@
 							</div>
 						</div>
 					</div>
-					{{end}}
+					{{ end }}
 				</div>
-			{{end}}
+			{{ end }}
 		</div>
 	</body>
 </html>

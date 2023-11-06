@@ -141,7 +141,7 @@ func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
 			DestinationPlaces: p.findPlace(segment.DestinationId, dp),
 			DepartAt:          departure.Format("2006 Jan 2"),
 			DepartTime:        departure.Format("15:04"),
-			ArriveAt:          arrival,
+			ArriveAt:          arrival.Format("2006 Jan 2"),
 			ArriveTime:        arrival.Format("15:04"),
 			DurationInMinutes: segment.DurationInMinutes,
 			MarketingCarrier:  p.data.Content.Results.Carriers[segment.MarketingCarrierId].Name,
@@ -157,7 +157,7 @@ func printResult(options []OptionData) {
 		fmt.Printf("Price: %f score (%f) direct: %v\n", data.Price, data.Score, data.IsDirect)
 		for _, s := range data.SegmentDetails {
 			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt)
-			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt.Format(time.DateTime))
+			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt)
 			fmt.Printf("Duration: %d\n", s.DurationInMinutes)
 			fmt.Printf("Carrier: %s\n", s.MarketingCarrier)
 		}

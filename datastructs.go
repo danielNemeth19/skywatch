@@ -198,7 +198,7 @@ type SegmentData struct {
 	DestinationPlaces []string
 	DepartAt          string
 	DepartTime        string
-	ArriveAt          time.Time
+	ArriveAt          string
 	ArriveTime        string
 	DurationInMinutes int
 	MarketingCarrier  string

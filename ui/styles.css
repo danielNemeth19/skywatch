@@ -32,11 +32,6 @@ p {
 	text-align: center;
 }
 
-.itinery__section {
-	display: flex;
-	flex-basis: 32%;
-	flex-direction: column;
-}
 
 #container {
 	margin-left: auto;
@@ -45,6 +40,19 @@ p {
 	display: flex;
 	flex-wrap: wrap;
 }
+
+.option__section {
+	display: flex;
+	flex-basis: 32%;
+	flex-direction: column;
+}
+
+.option-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
 .wrapper {
 	background: var(--gradient-text);
 	border-radius: 0.3125rem;
@@ -56,7 +64,7 @@ p {
 
 .flight__data {
 	display: flex;
-	justify-content: space-between;
+	justify-content: space-around;
 	align-items: flex-start;
 	flex-direction: row;
 }
@@ -91,26 +99,37 @@ p {
 	flex-direction: column;
 }
 
-.score {
-	display: flex;
-	flex-direction: column;
+.airplane {
+	margin-top: 10px;
 }
 
-.score div {
+.airplane path {
+	fill: var(--color-bg);
+	stroke: none;
+	d: path("m19.2 10.3-3.7-.1a19 19 0 0 1-2-2.3.46.46 0 0 0 .3-.5v-.6a.47.47 0 0 0-.5-.5h-1.2l-2.5-3C8.5 1.9 7.6.9 7.4.7A3.3 3.3 0 0 0 5.3 0l4.3 9.8v.6H6.9a19.35 19.35 0 0 0-2.9.4L1.2 7.7H.1l1.4 3.6c-.9.2-1.5.5-1.5.8s.7.6 1.6.8L.2 16.7h1.1l2.9-3.3a26.55 26.55 0 0 0 2.8.3h2.7v.5L5.4 24a3.46 3.46 0 0 0 2.1-.7c.2-.2 4.3-5.2 4.8-5.7h1a.56.56 0 0 0 .5-.6v-.6a.52.52 0 0 0-.2-.4c.9-1 1.5-1.9 1.9-2.3h3.7c.7 0 3.9-.8 3.9-1.7s-3.3-1.7-3.9-1.7z")
+}
+
+.carrier__info {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.carrier__info div {
 	font-size: 0.8em;
 	margin-top: 15px;
 }
 
-.score span {
+.carrier__info span {
 	text-align: center;
 	font-size: 0.5em;
 }
 
 .flight-time {
+	margin-top: 5px;
 	text-align: center;
 	font-size: 0.5em;
 }
-
-.arrow {
-	zoom: 2;
+.itinerary-info {
+	display:none;
 }
