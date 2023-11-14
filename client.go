@@ -94,7 +94,6 @@ func (s SkyScannerClient) PollUntilCompletes(body []byte) []byte {
 	return body
 }
 
-
 func (s SkyScannerClient) StoreResult(data AirData) {
 	marshaled, err := json.Marshal(data)
 

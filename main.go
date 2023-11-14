@@ -58,9 +58,8 @@ func main() {
 	parser := Parser{
 		data: client.getData(),
 	}
-	
+
 	parser.counter()
-	parser.checkItems()
 	flightData := parser.getFlightData(*maxStops)
 	writeResult(flightData, *fileName)
 }

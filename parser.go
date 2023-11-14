@@ -43,27 +43,20 @@ func (p Parser) counter() {
 	fmt.Printf("Passes: %d -- Failes: %d\n", pass, fail)
 }
 
-func (p Parser) checkItems() {
-	for id, itinerary := range p.data.Content.Results.Itineraries {
-		for optionIndex, option := range itinerary.PricingOptions {
-			totalPrice := p.convertPrice(option.Price)
-			if totalPrice == 0 {
-				fmt.Printf("Price is 0: %s <-> %d\n", id, optionIndex)
-			}
-			if len(option.Items) > 1 {
-				var breakdownPrice float64
-				for itemIndex, z := range option.Items {
-					breakdownPrice += p.convertPrice(z.Price)
-					fmt.Printf("%s <-> %d <-> %s <-> %d <-> %s\n", id, optionIndex, option.Price.Amount, itemIndex, z.Price.Amount)
-				}
-				if totalPrice == breakdownPrice {
-					fmt.Printf("Price breakdown is correct! %f\n", totalPrice)
-				} else {
-					fmt.Printf("Prices don't add up: %f -- %f\n", totalPrice, breakdownPrice)
-				}
+
+func (p Parser) setSegmentPrices(items []Item, price float64) map[string]float64 {
+	priceMap := make(map[string]float64)
+	for _, item := range items {
+		itemPrice := p.convertPrice(item.Price)
+		for _, fare := range item.Fares {
+			if itemPrice != price {
+				priceMap[fare.SegmentId] = itemPrice
+			} else {
+				priceMap[fare.SegmentId] = 0
 			}
 		}
 	}
+	return priceMap
 }
 
 func (p Parser) getOptionData(maxStops int) []OptionData {
@@ -73,13 +66,16 @@ func (p Parser) getOptionData(maxStops int) []OptionData {
 			score := p.findBestScore(id)
 			legData := p.data.Content.Results.Legs[id]
 
+			price := p.convertPrice(option.Price)
+			segPriceMap := p.setSegmentPrices(option.Items, price)
+
 			if legData.StopCount <= maxStops {
-				od := OptionData {
+				od := OptionData{
 					ItineraryId:    id,
 					OptionIndex:    i,
 					Score:          score,
-					SegmentDetails: p.collectSegmentDetails(legData.SegmentIds),
-					Price:          p.convertPrice(option.Price),
+					Price:          price,
+					SegmentDetails: p.collectSegmentDetails(legData.SegmentIds, segPriceMap),
 					IsDirect:       p.isDirectFlight(legData),
 					NumAgents:      len(option.AgentIds),
 					NumItems:       len(option.Items),
@@ -129,14 +125,15 @@ func (s Segment) createDateTime(direction string) time.Time {
 	}
 }
 
-func (p Parser) collectSegmentDetails(segmentIds []string) []SegmentData {
+func (p Parser) collectSegmentDetails(segmentIds []string, segPriceMap map[string]float64) []SegmentData {
 	var sg []SegmentData
 	for _, segmentId := range segmentIds {
 		segment := p.data.Content.Results.Segments[segmentId]
 		var op, dp []string
 		departure := segment.createDateTime(Departure)
 		arrival := segment.createDateTime(Arrival)
-		segmentData := SegmentData {
+		segmentData := SegmentData{
+			Price:             segPriceMap[segmentId],
 			OriginPlaces:      p.findPlace(segment.OriginId, op),
 			DestinationPlaces: p.findPlace(segment.DestinationId, dp),
 			DepartAt:          departure.Format("2006 Jan 2"),
