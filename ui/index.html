@@ -23,7 +23,7 @@
 								<p>{{ .DepartAt }}</p>
 							</div>
 							<div class="carrier__info">
-								<div>Carrier</div>
+								<div>{{ if .Price }}<span class="segment-info">{{ .Price }}</span>{{ end }}Carrier</div>
 								<span>{{ .MarketingCarrier }}</span>
 							</div>
 							<div class="flight__data__right">

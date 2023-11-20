@@ -130,6 +130,6 @@ p {
 	text-align: center;
 	font-size: 0.5em;
 }
-.itinerary-info {
-	display:none;
+.itinerary-info, .segment-info {
+	display: none;
 }
