@@ -61,6 +61,7 @@ func (p Parser) setSegmentPrices(items []Item, price float64) map[string]float64
 
 func (p Parser) getOptionData(maxStops int) []OptionData {
 	var options []OptionData
+
 	for id, itinerary := range p.data.Content.Results.Itineraries {
 		for i, option := range itinerary.PricingOptions {
 			score := p.findBestScore(id)
@@ -87,8 +88,15 @@ func (p Parser) getOptionData(maxStops int) []OptionData {
 			}
 		}
 	}
-	sort.Slice(options, func(i, j int) bool { return options[i].Score > options[j].Score })
-	// printResult(options)
+	sort.Slice(options, func(i, j int) bool {
+		switch {
+			case options[i].Score != options[j].Score:
+				return options[i].Score > options[j].Score
+			default:
+				return options[i].Price < options[j].Price
+		}
+	})
+	printResult(options)
 	return options
 }
 
