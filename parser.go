@@ -162,7 +162,7 @@ func printResult(options []OptionData) {
 		fmt.Printf("Price: %f score (%f) direct: %v\n", data.Price, data.Score, data.IsDirect)
 		for _, s := range data.SegmentDetails {
 			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt)
-			fmt.Printf("Arrival:\n\tFrom:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt)
+			fmt.Printf("Arrival:\n\tTo:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt)
 			fmt.Printf("Duration: %d\n", s.DurationInMinutes)
 			fmt.Printf("Carrier: %s\n", s.MarketingCarrier)
 		}
