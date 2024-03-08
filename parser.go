@@ -43,7 +43,6 @@ func (p Parser) counter() {
 	fmt.Printf("Passes: %d -- Failes: %d\n", pass, fail)
 }
 
-
 func (p Parser) setSegmentPrices(items []Item, price float64) map[string]float64 {
 	priceMap := make(map[string]float64)
 	for _, item := range items {
@@ -70,6 +69,7 @@ func (p Parser) getOptionData(maxStops int) []OptionData {
 			price := p.convertPrice(option.Price)
 			segPriceMap := p.setSegmentPrices(option.Items, price)
 
+			// Think about this.. aren't pricing options only different in price..?
 			if legData.StopCount <= maxStops {
 				od := OptionData{
 					ItineraryId:    id,
@@ -81,6 +81,7 @@ func (p Parser) getOptionData(maxStops int) []OptionData {
 					NumAgents:      len(option.AgentIds),
 					NumItems:       len(option.Items),
 					NumFares:       len(legData.SegmentIds),
+					TotalFlightTime: p.calculateFlightTime(legData.SegmentIds),
 				}
 				options = append(options, od)
 			} else {
@@ -90,10 +91,10 @@ func (p Parser) getOptionData(maxStops int) []OptionData {
 	}
 	sort.Slice(options, func(i, j int) bool {
 		switch {
-			case options[i].Score != options[j].Score:
-				return options[i].Score > options[j].Score
-			default:
-				return options[i].Price < options[j].Price
+		case options[i].Score != options[j].Score:
+			return options[i].Score > options[j].Score
+		default:
+			return options[i].Price < options[j].Price
 		}
 	})
 	printResult(options)
@@ -156,10 +157,19 @@ func (p Parser) collectSegmentDetails(segmentIds []string, segPriceMap map[strin
 	return sg
 }
 
+func (p Parser) calculateFlightTime(segmentIds []string) int {
+	var totalTime int
+	for _, segmentId := range segmentIds {
+		segment := p.data.Content.Results.Segments[segmentId]
+		totalTime += segment.DurationInMinutes
+	}
+	return totalTime
+}
+
 func printResult(options []OptionData) {
 	for i, data := range options {
 		fmt.Printf("\n%d --%s\n", i, data.ItineraryId)
-		fmt.Printf("Price: %f score (%f) direct: %v\n", data.Price, data.Score, data.IsDirect)
+		fmt.Printf("Price: %f Score: (%f) Direct: %v Total flight time: %d\n", data.Price, data.Score, data.IsDirect, data.TotalFlightTime)
 		for _, s := range data.SegmentDetails {
 			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt)
 			fmt.Printf("Arrival:\n\tTo:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt)

@@ -191,6 +191,7 @@ type OptionData struct {
 	NumFares       int
 	IsDirect       bool
 	Score          float64
+	TotalFlightTime int
 }
 
 type SegmentData struct {
