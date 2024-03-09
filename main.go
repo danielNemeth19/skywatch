@@ -29,6 +29,7 @@ func main() {
 	destination := flag.String("destination", "", "Specifies destination airport")
 	budgetAgent := flag.Bool("budget", true, "If true, only budget airlines will be queried")
 	maxStops := flag.Int("maxStops", 0, "Specifies max number of stops")
+	minScore := flag.Float64("minScore", 0, "Specifies minimum score for consideration")
 	flag.Parse()
 
 	var client Client
@@ -60,6 +61,6 @@ func main() {
 	}
 
 	parser.counter()
-	flightData := parser.getFlightData(*maxStops)
+	flightData := parser.getFlightData(*maxStops, *minScore)
 	writeResult(flightData, *fileName)
 }

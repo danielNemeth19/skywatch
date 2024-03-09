@@ -18,8 +18,8 @@ type Parser struct {
 	data AirData
 }
 
-func (p Parser) getFlightData(maxStops int) FlightData {
-	options := p.getOptionData(maxStops)
+func (p Parser) getFlightData(maxStops int, minScore float64) FlightData {
+	options := p.getOptionData(maxStops, minScore)
 	return FlightData{
 		Payload: p.data.Payload,
 		Options: options,
@@ -58,30 +58,38 @@ func (p Parser) setSegmentPrices(items []Item, price float64) map[string]float64
 	return priceMap
 }
 
-func (p Parser) getOptionData(maxStops int) []OptionData {
+func (p Parser) getOptionData(maxStops int, minScore float64) []OptionData {
 	var options []OptionData
 
 	for id, itinerary := range p.data.Content.Results.Itineraries {
 		for i, option := range itinerary.PricingOptions {
 			score := p.findBestScore(id)
-			legData := p.data.Content.Results.Legs[id]
 
+			if score < float64(minScore) {
+				continue
+			}
+
+			legData := p.data.Content.Results.Legs[id]
 			price := p.convertPrice(option.Price)
 			segPriceMap := p.setSegmentPrices(option.Items, price)
+			segmentDetails := p.collectSegmentDetails(legData.SegmentIds, segPriceMap)
+			totalFlightTime := p.calculateFlightTime(segmentDetails)
 
 			// Think about this.. aren't pricing options only different in price..?
 			if legData.StopCount <= maxStops {
 				od := OptionData{
-					ItineraryId:    id,
-					OptionIndex:    i,
-					Score:          score,
-					Price:          price,
-					SegmentDetails: p.collectSegmentDetails(legData.SegmentIds, segPriceMap),
-					IsDirect:       p.isDirectFlight(legData),
-					NumAgents:      len(option.AgentIds),
-					NumItems:       len(option.Items),
-					NumFares:       len(legData.SegmentIds),
-					TotalFlightTime: p.calculateFlightTime(legData.SegmentIds),
+					ItineraryId:     id,
+					OptionIndex:     i,
+					Score:           score,
+					Price:           price,
+					SegmentDetails:  segmentDetails,
+					IsDirect:        p.isDirectFlight(legData),
+					NumAgents:       len(option.AgentIds),
+					NumItems:        len(option.Items),
+					NumFares:        len(legData.SegmentIds),
+					TotalTravelTime: legData.DurationInMinutes,
+					TotalFlightTime: totalFlightTime,
+					TotalTransitTime: legData.DurationInMinutes - totalFlightTime,
 				}
 				options = append(options, od)
 			} else {
@@ -157,10 +165,9 @@ func (p Parser) collectSegmentDetails(segmentIds []string, segPriceMap map[strin
 	return sg
 }
 
-func (p Parser) calculateFlightTime(segmentIds []string) int {
+func (p Parser) calculateFlightTime(segmentData []SegmentData) int {
 	var totalTime int
-	for _, segmentId := range segmentIds {
-		segment := p.data.Content.Results.Segments[segmentId]
+	for _, segment := range segmentData {
 		totalTime += segment.DurationInMinutes
 	}
 	return totalTime
@@ -169,7 +176,8 @@ func (p Parser) calculateFlightTime(segmentIds []string) int {
 func printResult(options []OptionData) {
 	for i, data := range options {
 		fmt.Printf("\n%d --%s\n", i, data.ItineraryId)
-		fmt.Printf("Price: %f Score: (%f) Direct: %v Total flight time: %d\n", data.Price, data.Score, data.IsDirect, data.TotalFlightTime)
+		fmt.Printf("Price: %f Score: (%f) Direct: %v\n", data.Price, data.Score, data.IsDirect)
+		fmt.Printf("Total flight time: %d Total travel time: %d Total transit time: %d\n", data.TotalFlightTime, data.TotalTravelTime, data.TotalTransitTime)
 		for _, s := range data.SegmentDetails {
 			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt)
 			fmt.Printf("Arrival:\n\tTo:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt)
