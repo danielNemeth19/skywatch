@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"sort"
 	"strconv"
@@ -62,39 +61,37 @@ func (p Parser) getOptionData(maxStops int, minScore float64) []OptionData {
 	var options []OptionData
 
 	for id, itinerary := range p.data.Content.Results.Itineraries {
+		score := p.findBestScore(id)
+		legData := p.data.Content.Results.Legs[id]
+
+		if score < float64(minScore) || legData.StopCount > maxStops {
+			continue
+		}
+		isDirect := p.isDirectFlight(legData)
 		for i, option := range itinerary.PricingOptions {
-			score := p.findBestScore(id)
 
-			if score < float64(minScore) {
-				continue
-			}
-
-			legData := p.data.Content.Results.Legs[id]
 			price := p.convertPrice(option.Price)
 			segPriceMap := p.setSegmentPrices(option.Items, price)
+			// still not convinced that segment details needed on option level (except price)
 			segmentDetails := p.collectSegmentDetails(legData.SegmentIds, segPriceMap)
 			totalFlightTime := p.calculateFlightTime(segmentDetails)
+			totalTransitTime := legData.DurationInMinutes - totalFlightTime
 
-			// Think about this.. aren't pricing options only different in price..?
-			if legData.StopCount <= maxStops {
-				od := OptionData{
-					ItineraryId:     id,
-					OptionIndex:     i,
-					Score:           score,
-					Price:           price,
-					SegmentDetails:  segmentDetails,
-					IsDirect:        p.isDirectFlight(legData),
-					NumAgents:       len(option.AgentIds),
-					NumItems:        len(option.Items),
-					NumFares:        len(legData.SegmentIds),
-					TotalTravelTime: legData.DurationInMinutes,
-					TotalFlightTime: totalFlightTime,
-					TotalTransitTime: legData.DurationInMinutes - totalFlightTime,
-				}
-				options = append(options, od)
-			} else {
-				log.Printf("Skipping as %d > %d - %s\n", legData.StopCount, maxStops, id)
+			od := OptionData{
+				ItineraryId:      id,
+				OptionIndex:      i,
+				Score:            score,
+				Price:            price,
+				SegmentDetails:   segmentDetails,
+				IsDirect:         isDirect,
+				NumAgents:        len(option.AgentIds),
+				NumItems:         len(option.Items),
+				NumFares:         len(legData.SegmentIds),
+				TotalTravelTime:  legData.DurationInMinutes,
+				TotalFlightTime:  totalFlightTime,
+				TotalTransitTime: totalTransitTime,
 			}
+			options = append(options, od)
 		}
 	}
 	sort.Slice(options, func(i, j int) bool {
@@ -179,8 +176,8 @@ func printResult(options []OptionData) {
 		fmt.Printf("Price: %f Score: (%f) Direct: %v\n", data.Price, data.Score, data.IsDirect)
 		fmt.Printf("Total flight time: %d Total travel time: %d Total transit time: %d\n", data.TotalFlightTime, data.TotalTravelTime, data.TotalTransitTime)
 		for _, s := range data.SegmentDetails {
-			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s\n", s.OriginPlaces, s.DepartAt)
-			fmt.Printf("Arrival:\n\tTo:%v\n\tTime: %s\n", s.DestinationPlaces, s.ArriveAt)
+			fmt.Printf("Departure:\n\tFrom:%v\n\tTime: %s %s\n", s.OriginPlaces, s.DepartAt, s.DepartTime)
+			fmt.Printf("Arrival:\n\tTo:%v\n\tTime: %s %s\n", s.DestinationPlaces, s.ArriveAt, s.ArriveTime)
 			fmt.Printf("Duration: %d\n", s.DurationInMinutes)
 			fmt.Printf("Carrier: %s\n", s.MarketingCarrier)
 		}
