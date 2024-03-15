@@ -16,6 +16,16 @@
 					<h1 class="heading">{{ $data.Price }} HUF</h1>
 					<div class="itinerary-info">{{ $data.ItineraryId }} - {{ $data.OptionIndex }}</div>
 				</div>
+				<div class="option-header">
+					<div class="summary__info">
+						<div>Total Flight Time</div>
+						<span>{{ $data.TotalFlightTime }} min</span>
+					</div>
+					<div class="summary__info">
+						<div>Total Transit Time</div>
+						<span>{{ $data.TotalTransitTime }} min</span>
+					</div>
+				</div>
 				{{ range $data.SegmentDetails }}
 					<div class="wrapper">
 						<div class="flight__data">
